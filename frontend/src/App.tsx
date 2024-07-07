@@ -7,6 +7,7 @@ import Home from "./home/Home";
 import Dashboard from "./dashboard/Dashboard";
 import SignIn from "./signin/SignIn";
 import SignUp from "./signup/SignUp";
+import { ThemeProvider } from "@mui/material";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -26,9 +27,34 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
+// theme.js
+import { createTheme } from '@mui/material/styles';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#5c6bc0', // Primary color
+    },
+    secondary: {
+      main: '#ff4081', // Secondary color
+    },
+  },
+  typography: {
+    fontFamily: 'Roboto, Arial, sans-serif', // Custom font family
+    h1: {
+      fontSize: '2rem', // Custom font size for h1
+    },
+    // Add more typography settings as needed
+  },
+  spacing: 8, // Default spacing unit
+  // Add more customizations as needed
+});
+
+
 export default function App() {
   return (
     <>
+    <ThemeProvider theme = {theme}>
     <Nav/>
     <BrowserRouter>
       <Routes>
@@ -38,7 +64,9 @@ export default function App() {
         <Route path="/signup" element={<SignUp/>} />
       </Routes>
     </BrowserRouter>
+    </ThemeProvider>
     </>
+    
   );
 };
 
