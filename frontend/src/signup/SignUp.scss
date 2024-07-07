@@ -1,0 +1,41 @@
+@import "./../css/util.scss";
+
+.sign-up {
+  width: 100%;
+}
+
+.sign-up-box {
+  @include shadow;
+  border-radius: 8px;
+  background-color: slategrey;
+  display: flex;
+  flex-direction: column;
+  width: 40%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 100px;
+  padding: 20px;
+}
+
+.sign-up-header {
+  font-size: 24px;
+  color: white;
+  margin-bottom: 20px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.sign-up-button {
+  @include shadow;
+  border-radius: 8px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+
+  transition: background-color 0.3s;
+  
+
+  &:hover {
+    background-color: #4CAF50;
+  }
+}

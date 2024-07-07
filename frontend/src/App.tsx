@@ -1,9 +1,12 @@
-
-
-
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import Nav from "./nav/Nav";
+import { BrowserRouter as Router, Route, Link, Routes, BrowserRouter } from 'react-router-dom';
+import Home from "./home/Home";
+import Dashboard from "./dashboard/Dashboard";
+import SignIn from "./signin/SignIn";
+import SignUp from "./signup/SignUp";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -23,17 +26,21 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
-
-
-
-function App() {
-
+export default function App() {
   return (
     <>
-      <h1>Welcome to CourseSphere</h1>
+    <Nav/>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home/>} />
+        <Route path="/dashboard" element={<Dashboard/>} />
+        <Route path="/signin" element={<SignIn/>} />
+        <Route path="/signup" element={<SignUp/>} />
+      </Routes>
+    </BrowserRouter>
     </>
-  )
-}
+  );
+};
 
-export default App
+
 

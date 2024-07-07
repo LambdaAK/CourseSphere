@@ -1,0 +1,37 @@
+@import "./../css/util.scss";
+
+.nav {
+  display: flex;
+  flex-direction: row;
+}
+
+.hamburger {
+  // make the hambuger smaller
+  height: 50px;
+}
+
+.nav-button {
+
+}
+
+.nav-link {
+  @include shadow;
+  padding: 10px;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s;
+  margin: 0 10px;
+  
+  @include md {
+    font-size: 1.2rem;
+  }
+
+}
+
+.nav-links {
+  display: flex;
+  flex-direction: row;
+  padding-left: 40px;
+
+}
