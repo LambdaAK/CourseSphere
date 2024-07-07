@@ -71,8 +71,10 @@ export default function Nav() {
 
   return (
     <div className="nav">
-      <Button variant="outlined"
-      onClick = {toggleDrawer(true)}>Open Nav</Button>
+      <img src={hamburger
+      } alt="menu" className="hamburger"
+      onClick = {toggleDrawer(true)}
+      />
       <Drawer anchor = {"top"} open={open} onClose={toggleDrawer(false)}>
         {list()}
       </Drawer>

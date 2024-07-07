@@ -3,7 +3,7 @@
 }
 
 .sign-up-box {
-  box-shadow: 0 30px 30px hsla(0, 0%, 0%, 0.25);
+  box-shadow: 0 5px 5px hsla(0, 0%, 0%, 0.25);
   border-radius: 8px;
   padding: 10px;
   background-color: #f8f8f8;
@@ -22,7 +22,7 @@
 }
 
 .sign-up-button {
-  box-shadow: 0 30px 30px hsla(0, 0%, 0%, 0.25);
+  box-shadow: 0 5px 5px hsla(0, 0%, 0%, 0.25);
   border-radius: 8px;
   padding: 10px;
   border-radius: 8px;

@@ -6,8 +6,15 @@
 }
 
 .hamburger {
-  // make the hambuger smaller
+  @include shadow;
   height: 50px;
+
+  transition: all 0.3s;
+
+  &:hover {
+    transform: translateY(2px);
+  
+  }
 }
 
 .nav-button {
