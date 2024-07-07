@@ -1,6 +1,7 @@
 import { useState } from "react"
 import hamburger from "./../assets/menu-burger.svg"
 import "./Nav.css"
+import { Button, ButtonGroup } from "@mui/material"
 
 function NavButton(props: {toggleVisible: Function}) {
   return (
@@ -14,12 +15,9 @@ function NavButton(props: {toggleVisible: Function}) {
 
 function NavLink(props: {text: string, path: string}) {
   return (
-    <div className = "nav-link"
-      onClick = {() => window.location.href = props.path }>
-      {
-        props.text
-      }
-    </div>
+    <Button variant="outlined"
+    onClick = {() => window.location.href = props.path}
+    > {props.text} </Button>
   )
 }
 
@@ -29,10 +27,12 @@ function NavLinks(props: {visible: boolean}) {
 
   return (
     <div className = "nav-links">
+      <ButtonGroup variant="contained">
       <NavLink text = "Home" path = "/"/>
       <NavLink text = "Dashboard" path = "/dashboard"/>
       <NavLink text = "Sign in" path = "signin"/>
       <NavLink text = "Sign up" path = "signup"/>
+      </ButtonGroup>
     </div>
   )
 }

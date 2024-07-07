@@ -11,6 +11,11 @@
     "sass": "sass --watch src"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@fontsource/roboto": "^5.0.13",
+    "@mui/icons-material": "^5.16.0",
+    "@mui/material": "^5.16.0",
     "firebase": "^10.12.3",
     "framer-motion": "^11.2.13",
     "jquery": "^3.7.1",

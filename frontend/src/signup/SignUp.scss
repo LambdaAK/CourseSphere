@@ -6,23 +6,19 @@
 
 .sign-up-box {
   @include shadow;
-  border-radius: 8px;
-  background-color: slategrey;
+  background-color: $soft-white;
   display: flex;
   flex-direction: column;
-  width: 40%;
+  margin-top: 80px;
+  width: 80%;
   margin-left: auto;
   margin-right: auto;
-  margin-top: 100px;
-  padding: 20px;
 }
 
 .sign-up-header {
   font-size: 24px;
   color: white;
   margin-bottom: 20px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .sign-up-button {
@@ -31,9 +27,8 @@
   width: fit-content;
   margin-left: auto;
   margin-right: auto;
-
   transition: background-color 0.3s;
-  
+  background-color: $bright-red;
 
   &:hover {
     background-color: #4CAF50;
