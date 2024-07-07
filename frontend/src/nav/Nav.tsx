@@ -1,7 +1,7 @@
 import { useState } from "react"
 import hamburger from "./../assets/menu-burger.svg"
 import "./Nav.css"
-import { Button, ButtonGroup } from "@mui/material"
+import { Button, ButtonGroup, Drawer, List, ListItem, ListItemText, Typography } from "@mui/material"
 
 function NavButton(props: {toggleVisible: Function}) {
   return (
@@ -43,11 +43,42 @@ export default function Nav() {
 
   const toggleVisible = () => setVisible(!visible)
 
+  const [open, setOpen] = useState<boolean>(false)
+
+  const toggleDrawer = (open: boolean) => (event: any) => {
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return
+    }
+    setOpen(open)
+  }
+
+  const list = () =>
+  <div
+    role="presentation"
+    onClick={toggleDrawer(false)}
+    onKeyDown={toggleDrawer(false)}
+  >
+    <List>
+      {['Home', 'Dashboard', 'Sign in', 'Sign up'].map((text: string) => (
+        <ListItem key={text} onClick={() => window.location.href = `/${text.toLowerCase().replace(' ', '')}`}>
+
+            <ListItemText primary={text} />
+
+        </ListItem>
+      ))}
+    </List>
+  </div>
+
   return (
     <div className="nav">
-      <NavButton toggleVisible = {toggleVisible}/>
-      <NavLinks visible = {visible}/>
+      <Button variant="outlined"
+      onClick = {toggleDrawer(true)}>Open Nav</Button>
+      <Drawer anchor = {"top"} open={open} onClose={toggleDrawer(false)}>
+        {list()}
+      </Drawer>
     </div>
   )
 }
+
+
 
