@@ -1,26 +1,44 @@
 import "./SignUp.css"
 import $ from "jquery"
 import Button from '@mui/material/Button';
-import { TextField } from "@mui/material";
-import { useState } from "react";
+import { TextField, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
+import firebaseConfig from "./../firebaseConfig"
+import { FirebaseApp, initializeApp } from "firebase/app";
+import { Database, getDatabase } from "firebase/database";
+import { Auth, getAuth } from "firebase/auth";
+import { usersCreate } from "../api";
+import { Id, toast } from "react-toastify";
+
+
+const app: FirebaseApp = initializeApp(firebaseConfig);
+const database: Database = getDatabase(app)
+const auth: Auth = getAuth()
+
 
 const performSignup = () => {
   const email: string = $("#signup-email-input").val()
   const password: string = $("#signup-password-input").val()
 
-  alert(`Signing up with email: ${email} and password: ${password}`)
-}
+  usersCreate(email, password)
+    .then(() => {
 
-const SignUpHeader = () => {
-  return (
-    <div className = "sign-up-header">
-      Sign Up
-    </div>
-  )
+    })
+    .catch((e) => {
+      toast(`Sign up failed: ${e}`, {
+        position: "top-right",
+        hideProgressBar: true,
+        closeOnClick: true,   
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light"
+        })
+    })
+
 }
 
 const SignUpButton = (props: {email: string, password: string}) => {
-
 
   return (
     <Button style = {
@@ -36,6 +54,18 @@ const SignUpButton = (props: {email: string, password: string}) => {
   )
 }
 
+const SignUpHeader = () => {
+  return (
+    <Typography className = "signup-header" variant="h1" sx = {{
+        marginLeft: "auto",
+        marginRight: "auto",
+        marginBottom: "20px",
+        marginTop: "10px"
+      }}
+    >Sign up</Typography>
+  )
+}
+
 const SignUpBox = () => {
 
   const [email, setEmail] = useState<string>('')
@@ -43,6 +73,7 @@ const SignUpBox = () => {
 
   return (
     <div className = "sign-up-box">
+      <SignUpHeader/>
       <TextField id="signup-email-input" label="Email" variant="filled"
         onChange = {(e) => setEmail(e.target.value)}
       />
@@ -57,6 +88,7 @@ const SignUpBox = () => {
 }
 
 const SignUp = () => {
+
   return (
     <div className = "sign-up">
       <SignUpBox/>

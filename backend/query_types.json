@@ -19,15 +19,21 @@
   {
       "query_type": "Info about major",
       "parameters": {
-          "Major": "string"
+          "major": "string"
       }
 
   },
   {
       "query_type": "Info about minor",
       "parameters": {
-          "Minor": "string"
+          "minor": "string"
       }
 
+  },
+  {
+    "query_type": "Info about professor",
+    "parameters": {
+        "professor_name": "string"
+    }
   }
 ]

@@ -1,14 +1,58 @@
-import { Button, TextField } from "@mui/material"
+import { Button, TextField, Typography } from "@mui/material"
 import { useState } from "react"
 import $ from "jquery"
+import { usersCreate } from "../api"
+import { toast } from "react-toastify"
+import { Auth, getAuth, signInWithEmailAndPassword } from "firebase/auth"
+import { FirebaseApp, initializeApp } from "firebase/app"
+import firebaseConfig from "../firebaseConfig"
+import { Database, getDatabase } from "firebase/database"
 
-const performSignin = () => {
+
+const app: FirebaseApp = initializeApp(firebaseConfig);
+const database: Database = getDatabase(app)
+const auth: Auth = getAuth()
+
+const performSignIn = () => {
+
   const email: string = $("#signup-email-input").val()
   const password: string = $("#signup-password-input").val()
 
-  alert(`Signing in with email: ${email} and password: ${password}`)
+  signInWithEmailAndPassword(auth, email, password)
+    .then(() => {
+      toast("Sign in successful", {
+        position: "top-right",
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light"
+      })
+    })
+    .catch((e) => {
+      toast(`Sign in failed: ${e}`, {
+        position: "top-right",
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light"
+      })
+    })
 }
 
+const SignInHeader = () => {
+  return (
+    <Typography className = "signin-header" variant="h1" sx = {{
+        marginLeft: "auto",
+        marginRight: "auto",
+        marginTop: "20px",
+      }}
+    >Sign in</Typography>
+  )
+}
 
 const SignInButton = (props: {email: string, password: string}) => {
 
@@ -21,7 +65,7 @@ const SignInButton = (props: {email: string, password: string}) => {
       }
     } variant={"contained"}
     disabled = {props.email == '' || props.password == ''}
-    onClick = {() => performSignin()}
+    onClick = {() => performSignIn()}
     >Sign in</Button>
   )
 }
@@ -33,6 +77,7 @@ const SignInBox = () => {
 
   return (
     <div className = "sign-up-box">
+      <SignInHeader/>
       <TextField id="signup-email-input" label="Email" variant="filled"
         onChange = {(e) => setEmail(e.target.value)}
       />
@@ -45,7 +90,6 @@ const SignInBox = () => {
     </div>
   )
 }
-
 
 const SignIn = () => {
   return (

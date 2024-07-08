@@ -1,7 +1,15 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import hamburger from "./../assets/menu-burger.svg"
 import "./Nav.css"
 import { Button, ButtonGroup, Drawer, List, ListItem, ListItemText, Typography } from "@mui/material"
+import { Auth, getAuth, onAuthStateChanged } from "firebase/auth"
+import { FirebaseApp, initializeApp } from "firebase/app"
+import { Database, getDatabase } from "firebase/database"
+import firebaseConfig from "../firebaseConfig"
+
+const app: FirebaseApp = initializeApp(firebaseConfig);
+const database: Database = getDatabase(app)
+const auth: Auth = getAuth()
 
 function NavButton(props: {toggleVisible: Function}) {
   return (
@@ -37,7 +45,41 @@ function NavLinks(props: {visible: boolean}) {
   )
 }
 
+const LoggedInAs = (props: {loggedIn: boolean, email: string}) => {
+  if (props.loggedIn) return (
+    <Typography className = "logged-in-as" variant="h6">
+      Logged in as: {props.email}
+    </Typography>
+  )
+  else return (
+    <Typography className = "logged-in-as" variant="h6">
+      Not logged in
+    </Typography>
+  )
+}
+
 export default function Nav() {
+
+  const [loggedIn, setLoggedIn] = useState<boolean>(false)
+  const [email, setEmail] = useState<string>("")
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => { 
+      if (user) {
+        // signed in
+        setLoggedIn(true)
+        if (user.email != null) {
+          setEmail(user.email)
+        }
+      } 
+      
+      else {
+        // not signed in
+        setLoggedIn(false)
+        setEmail("")
+      }
+    })
+  }, [])
 
   const [visible, setVisible] = useState<boolean>(true)
 
@@ -59,13 +101,31 @@ export default function Nav() {
     onKeyDown={toggleDrawer(false)}
   >
     <List>
-      {['Home', 'Dashboard', 'Sign in', 'Sign up'].map((text: string) => (
-        <ListItem key={text} onClick={() => window.location.href = `/${text.toLowerCase().replace(' ', '')}`}>
-
-            <ListItemText primary={text} />
-
+        <ListItem key="Home" onClick={() => window.location.href = "/"}>
+          <ListItemText primary="Home" />
         </ListItem>
-      ))}
+        <ListItem key="Dashboard" onClick={() => window.location.href = "/dashboard"}>
+          <ListItemText primary="Dashboard" />
+        </ListItem>
+        {!loggedIn &&
+        <ListItem key="Sign Up" onClick={() => window.location.href = "/signup"}>
+          <ListItemText primary="Sign Up" />
+        </ListItem>
+        }
+        {!loggedIn &&
+        <ListItem key="Sign In" onClick={() => window.location.href = "/signin"}>
+          <ListItemText primary="Sign In" />
+        </ListItem>
+        }
+        {loggedIn &&
+        <ListItem key="Sign Out" onClick={() => {
+          auth.signOut()
+          window.location.href = "/"
+        }}>
+          <ListItemText primary="Sign Out" />
+        </ListItem>
+        }
+
     </List>
   </div>
 
@@ -78,6 +138,7 @@ export default function Nav() {
       <Drawer anchor = {"top"} open={open} onClose={toggleDrawer(false)}>
         {list()}
       </Drawer>
+      <LoggedInAs loggedIn = {loggedIn} email = {email}/>
     </div>
   )
 }
