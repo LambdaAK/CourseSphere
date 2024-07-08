@@ -20,26 +20,10 @@ const performSignIn = () => {
 
   signInWithEmailAndPassword(auth, email, password)
     .then(() => {
-      toast("Sign in successful", {
-        position: "top-right",
-        hideProgressBar: true,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light"
-      })
+      window.location.replace("/")
     })
     .catch((e) => {
-      toast(`Sign in failed: ${e}`, {
-        position: "top-right",
-        hideProgressBar: true,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light"
-      })
+      toast.error(`Sign in failed: ${e}`)
     })
 }
 

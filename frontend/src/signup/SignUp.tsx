@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import firebaseConfig from "./../firebaseConfig"
 import { FirebaseApp, initializeApp } from "firebase/app";
 import { Database, getDatabase } from "firebase/database";
-import { Auth, getAuth } from "firebase/auth";
+import { Auth, getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { usersCreate } from "../api";
 import { Id, toast } from "react-toastify";
 
@@ -22,7 +22,8 @@ const performSignup = () => {
 
   usersCreate(email, password)
     .then(() => {
-
+      signInWithEmailAndPassword(auth, email, password)
+      window.location.replace("/")
     })
     .catch((e) => {
       toast(`Sign up failed: ${e}`, {
