@@ -151,6 +151,7 @@ class RedditCrawler:
             logging.warning(f"File {file_name} already exists. Skipping generation.")
 
 
+
 if __name__ == "__main__":
     # Test usages
     reddit_crawler = RedditCrawler("reddit_key.json")

@@ -2,3 +2,4 @@ firebase-admin
 flask
 flask-cors
 openai
+pandas
