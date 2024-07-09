@@ -2,7 +2,7 @@
   box-shadow: 0 5px 5px hsla(0, 0%, 0%, 0.25);
   border-radius: 8px;
   padding: 10px;
-  display: flex;
+  padding: 20px;
   margin-left: auto;
   margin-right: auto;
   width: min(80%, 1000px);
@@ -12,7 +12,7 @@
 .selector {
   margin: 20px;
   height: fit-content;
-  width: fit-content;
+  width: 150px;
 }
 
 /*# sourceMappingURL=Dashboard.css.map */
