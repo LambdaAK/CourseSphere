@@ -1,11 +1,9 @@
 import "./Home.css"
 
-const Home = () => {
+export default function Home() {
   return (
     <div className = "home">
       Home
     </div>
   )
 }
-
-export default Home
