@@ -197,6 +197,27 @@ const CoursesInput = () => {
   );
 };
 
+const TellMeAboutYourself = () => {
+  return (
+    <Grid item xs={12}>
+      <Typography variant="h6">Tell me about yourself</Typography>
+      <Typography variant="body2" sx={{ marginBottom: 2 }}>
+        This will be used to create a personalized experience. Our model will
+        extract relevant insights from this text to steer our AI to make more
+        targetted recommendations. Please fill this in concisely and
+        responsibly. Pricing is based on the length and how often you update
+        this field.
+      </Typography>
+      <TextField
+        multiline
+        fullWidth
+        rows={4}
+        placeholder="I'm interested in machine learning and artificial intelligence. I have a background in computer science and would like to learn more about the applications of AI in the healthcare industry. I'm also interested in entrepreneurship and would like to start my own company one day."
+      />
+    </Grid>
+  );
+};
+
 const Dashboard = () => {
   return (
     <div className="dashboard">
@@ -219,6 +240,7 @@ const Dashboard = () => {
           <CollegeSelection />
         </Grid>
         <CoursesInput />
+        <TellMeAboutYourself />
       </Grid>
     </div>
   );
