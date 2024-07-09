@@ -1,6 +1,7 @@
 import firebase_admin
 from firebase_admin import credentials, auth
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
+import json
 from flask_cors import CORS
 
 cred = credentials.Certificate("./credentials.json")
@@ -12,6 +13,25 @@ firebase_app = firebase_admin.get_app()
 app = Flask(__name__)
 
 CORS(app)
+
+
+# Generic response functions, change as needed for the frontend. 
+def success_response(message: str, code: int):
+    
+    response = {
+        'status': 'success',
+        'message': message
+    }
+    return jsonify(response), code
+
+def error_response(error: str, code: int):
+   
+    response = {
+        'status': 'error',
+        'message': error
+    }
+    return jsonify(response), code
+
 
 
 def create_user(email: str, password: str):
