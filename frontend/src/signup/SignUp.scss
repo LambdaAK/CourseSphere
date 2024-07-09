@@ -13,6 +13,7 @@
   width: min(80%, 500px);
   margin-left: auto;
   margin-right: auto;
+  padding: 35px;
 }
 
 .sign-up-header {
@@ -33,8 +34,4 @@
   &:hover {
     background-color: #4CAF50;
   }
-}
-
-.sign-up-input {
-  @include shadow-2;
 }
