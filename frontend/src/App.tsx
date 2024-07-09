@@ -7,7 +7,7 @@ import Home from "./home/Home";
 import Dashboard from "./dashboard/Dashboard";
 import SignIn from "./signin/SignIn";
 import SignUp from "./signup/SignUp";
-import { ThemeProvider } from "@mui/material";
+import { ThemeProvider, Typography } from "@mui/material";
 import firebaseConfig from "./firebaseConfig";
 import { Id, ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';

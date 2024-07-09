@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import hamburger from "./../assets/menu-burger.svg"
 import "./Nav.css"
-import { Button, ButtonGroup, Drawer, List, ListItem, ListItemText, Typography } from "@mui/material"
+import { AppBar, Box, Button, ButtonGroup, Drawer, List, ListItem, ListItemText, TextField, Toolbar, Typography } from "@mui/material"
 import { Auth, getAuth, onAuthStateChanged } from "firebase/auth"
 import { FirebaseApp, initializeApp } from "firebase/app"
 import { Database, getDatabase } from "firebase/database"
@@ -46,15 +46,28 @@ function NavLinks(props: {visible: boolean}) {
 }
 
 const LoggedInAs = (props: {loggedIn: boolean, email: string}) => {
-  if (props.loggedIn) return (
-    <Typography className = "logged-in-as" variant="h6">
-      Logged in as: {props.email}
-    </Typography>
-  )
-  else return (
-    <Typography className = "logged-in-as" variant="h6">
-      Not logged in
-    </Typography>
+  return (
+    <AppBar position="static" color="primary"
+    sx = {{
+      marginLeft: "auto",
+      width: "fit-content",
+      borderRadius: "8px"
+    }}
+    onClick = {() => {
+      if (!props.loggedIn) {
+        window.location.replace("/signin")
+      }
+    }}
+    className = "logged-in-as"
+    >
+      <Toolbar>
+        <Typography variant="h5" component="div" sx={{ flexGrow: 1, color: 'white'}}>
+          {
+            props.loggedIn ? `Logged in as: ${props.email}` : "Sign in"
+          }
+        </Typography>
+      </Toolbar>
+    </AppBar>
   )
 }
 
@@ -135,10 +148,11 @@ export default function Nav() {
       } alt="menu" className="hamburger"
       onClick = {toggleDrawer(true)}
       />
+      <LoggedInAs loggedIn = {loggedIn} email = {email}/>
       <Drawer anchor = {"top"} open={open} onClose={toggleDrawer(false)}>
         {list()}
       </Drawer>
-      <LoggedInAs loggedIn = {loggedIn} email = {email}/>
+      
     </div>
   )
 }
