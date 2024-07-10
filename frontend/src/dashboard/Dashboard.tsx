@@ -124,7 +124,8 @@ const CollegeSelection = () => {
   );
 };
 
-const CourseList = ({ courses, handleRemove }) => {
+const CourseList = (props: {courses: string[], handleRemove: Function}) => {
+  const {courses, handleRemove} = props;
   return (
     <Box
       sx={{ flex: "1 1 auto", height: 200, width: 300, overflow: "auto" }}
@@ -153,7 +154,7 @@ const CourseList = ({ courses, handleRemove }) => {
 
 const CoursesInput = () => {
   const [course, setCourse] = useState<string>("");
-  const [selectedCourses, setSelectedCourses] = useState([] as Set);
+  const [selectedCourses, setSelectedCourses] = useState<string[]>([])
 
   return (
     <>
@@ -168,11 +169,11 @@ const CoursesInput = () => {
           <Autocomplete
             options={courses}
             value={course}
-            onChange={(event, newValue) => {
+            onChange={(event: any, newValue: string | null) => {
               if (newValue) {
                 setCourse(newValue);
-                const newSet = new Set(selectedCourses);
-                newSet.add(newValue);
+                const newSet:string[] = Array.from(selectedCourses);
+                newSet.push(newValue);
                 setSelectedCourses(newSet);
               }
             }}
@@ -187,8 +188,8 @@ const CoursesInput = () => {
         <CourseList
           courses={selectedCourses}
           handleRemove={(course: string) => {
-            const newSet = new Set(selectedCourses);
-            newSet.delete(course);
+            let newSet: string[] = Array.from(selectedCourses)
+            newSet = newSet.filter((c: string) => c != course)
             setSelectedCourses(newSet);
             console.log(newSet);
           }}
