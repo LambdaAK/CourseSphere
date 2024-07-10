@@ -1,11 +1,13 @@
 import firebase_admin
-from firebase_admin import credentials, auth
+from firebase_admin import credentials, auth, db
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 # Firebase Initialization
 cred = credentials.Certificate("./credentials.json")
-firebase_admin.initialize_app(cred)
+firebase_admin.initialize_app(cred, {
+    "databaseURL": "https://coursesphere-8bd9a-default-rtdb.firebaseio.com"
+})
 firebase_app = firebase_admin.get_app()
 
 # Cross Origin Resolution
@@ -21,7 +23,6 @@ def success_response(data: any, code: int):
     :param code: The HTTP status code.
     :return: A Flask JSON response with the given data and status code.
     """
-    print(data)  #testing
     return jsonify(data), code
 
 
@@ -33,7 +34,6 @@ def error_response(error: str, code: int):
     :param code: The HTTP status code.
     :return: A Flask JSON response with the error message and status code.
     """
-    print(error)  #also testing
     return jsonify({'error': error}), code
 
 
@@ -70,8 +70,58 @@ def create_user():
 
 @app.route("/users/info", methods=["POST"])
 def set_user_info():
-    pass
+    # get the idtoken of the user
+    data = request.get_json()
+    id_token = data.get("id_token")
+    uid = ""
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
 
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    
+    majors = data.get("majors")
+    minors = data.get("minors")
+    year = data.get("year")
+    college = data.get("college")
+    courses = data.get("courses")
+    about = data.get("about")
+
+    # set uid/info equal to the data
+
+    user_info = {
+        "majors": majors,
+        "minors": minors,
+        "year": year,
+        "college": college,
+        "courses": courses,
+        "about": about
+    }
+
+    ref = db.reference(f'users/{uid}/info')
+
+    ref.set(user_info)
+
+    return jsonify({"message": "User info set successfully", "uid": uid}), 200
+
+@app.route("/users/info", methods=["GET"])
+def get_user_info():
+    # get the idtoken of the user and authenticate it
+
+    id_token = request.args.get("id_token")
+    uid = ""
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    
+    ref = db.reference(f'users/{uid}/info')
+    user_info = ref.get()
+
+    return jsonify(user_info), 200
 
 
 
