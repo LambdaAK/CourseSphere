@@ -37,7 +37,7 @@ def error_response(error: str, code: int):
     return jsonify({'error': error}), code
 
 
-@app.route('/users/create', methods=["POST"])
+@app.route("/users/create", methods=["POST"])
 def create_user():
     """
     Creates a new user with the provided email and password.
@@ -67,6 +67,12 @@ def create_user():
         return success_response(user_data, 200)
     except Exception as e:
         return error_response(f"Error creating user: {str(e)}", 400)
+
+@app.route("/users/info", methods=["POST"])
+def set_user_info():
+    pass
+
+
 
 
 if __name__ == '__main__':

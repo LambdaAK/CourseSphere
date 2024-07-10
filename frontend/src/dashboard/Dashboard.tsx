@@ -16,25 +16,46 @@ import {
 import majorOptions from "./majorOptions";
 import minorOptions from "./minorOptions";
 import SearchIcon from "@mui/icons-material/Search";
-import { set } from "firebase/database";
-import courses from "../public/courses";
+import { Database, getDatabase, set } from "firebase/database";
+import allCourses from "../public/courses";
+import { FirebaseApp, initializeApp } from "firebase/app";
+import { Auth, getAuth } from "firebase/auth";
+import firebaseConfig from "../firebaseConfig";
+import { toast } from "react-toastify";
+import $ from "jquery";
 
-const MajorSelection = () => {
-  const [selectedMajors, setSelectedMajors] = useState<string[]>([]);
+const app: FirebaseApp = initializeApp(firebaseConfig);
+const database: Database = getDatabase(app)
+const auth: Auth = getAuth()
 
+const sendInfoToBackend = (
+  majors: string[], 
+  minors: string[], 
+  year: string, 
+  college: string, 
+  courses: string[], 
+  about: string) => {
+  
+  alert(`Sending the following data to the backend: \n\nmajors: ${majors}\nminors: ${minors}\nyear: ${year}\ncollege: ${college}\ncourses: ${courses}\nabout: ${about}`)
+
+}
+
+const MajorSelection = (props: {majors: string[], setMajors: Function}) => {
+  const {majors, setMajors} = props;
   return (
     <Autocomplete
       sx={{
         width: 200,
       }}
+      id = "major-output"
       className="selector"
       multiple
       limitTags={3}
       options={majorOptions}
       getOptionLabel={(option) => option}
-      value={selectedMajors}
+      value={majors}
       onChange={(event, newValue: string[]) => {
-        setSelectedMajors(newValue);
+        setMajors(newValue);
       }}
       renderTags={(value, getTagProps) =>
         value.map((option, index) => (
@@ -53,8 +74,8 @@ const MajorSelection = () => {
   );
 };
 
-const MinorSelection = () => {
-  const [selectedMinors, setSelectedMinors] = useState<string[]>([]);
+const MinorSelection = (props: {minors: string[], setMinors: Function}) => {
+  const {minors, setMinors} = props
 
   return (
     <Autocomplete
@@ -66,9 +87,9 @@ const MinorSelection = () => {
       limitTags={3}
       options={minorOptions}
       getOptionLabel={(option) => option}
-      value={selectedMinors}
+      value={minors}
       onChange={(event, newValue: string[]) => {
-        setSelectedMinors(newValue);
+        setMinors(newValue);
       }}
       renderTags={(value, getTagProps) =>
         value.map((option, index) => (
@@ -78,6 +99,7 @@ const MinorSelection = () => {
       renderInput={(params) => (
         <TextField
           {...params}
+          id = "minor-output"
           variant="outlined"
           label="Minor(s)"
           placeholder="Up to 3"
@@ -100,10 +122,11 @@ const collegeOptions = [
   "Cornell SC Johnson College of Business",
 ];
 
-const YearSelection = () => {
+const YearSelection = (props: {year: string, setYear: Function}) => {
   return (
     <Autocomplete
       className="selector"
+      id = "year-output"
       disablePortal
       options={yearOptions}
       sx={{ width: 200 }}
@@ -112,10 +135,11 @@ const YearSelection = () => {
   );
 };
 
-const CollegeSelection = () => {
+const CollegeSelection = (props: {college: string, setCollege: Function}) => {
   return (
     <Autocomplete
       className="selector"
+      id = "college-output"
       disablePortal
       options={collegeOptions}
       sx={{ width: 200 }}
@@ -152,9 +176,9 @@ const CourseList = (props: {courses: string[], handleRemove: Function}) => {
   );
 };
 
-const CoursesInput = () => {
+const CoursesInput = (props: {courses: string[], setCourses: Function}) => {
   const [course, setCourse] = useState<string>("");
-  const [selectedCourses, setSelectedCourses] = useState<string[]>([])
+  const {courses, setCourses} = props;
 
   return (
     <>
@@ -167,14 +191,15 @@ const CoursesInput = () => {
             sx={{ color: "action.active", mr: 1, my: 0.5, width: 50 }}
           />
           <Autocomplete
-            options={courses}
+            options={allCourses}
             value={course}
+            id = "courses-output"
             onChange={(event: any, newValue: string | null) => {
               if (newValue) {
                 setCourse(newValue);
-                const newSet:string[] = Array.from(selectedCourses);
+                const newSet:string[] = Array.from(courses);
                 newSet.push(newValue);
-                setSelectedCourses(newSet);
+                setCourses(newSet);
               }
             }}
             fullWidth
@@ -186,11 +211,11 @@ const CoursesInput = () => {
       </Grid>
       <Grid item xs={4}>
         <CourseList
-          courses={selectedCourses}
+          courses={courses}
           handleRemove={(course: string) => {
-            let newSet: string[] = Array.from(selectedCourses)
+            let newSet: string[] = Array.from(courses)
             newSet = newSet.filter((c: string) => c != course)
-            setSelectedCourses(newSet);
+            setCourses(newSet);
             console.log(newSet);
           }}
         />
@@ -199,7 +224,7 @@ const CoursesInput = () => {
   );
 };
 
-const TellMeAboutYourself = () => {
+const TellMeAboutYourself = (props: {about: string, setAbout: Function}) => {
   return (
     <Grid item xs={12}>
       <Typography variant="h6">Tell me about yourself</Typography>
@@ -211,6 +236,7 @@ const TellMeAboutYourself = () => {
         this field.
       </Typography>
       <TextField
+        id = "info-output"
         multiline
         fullWidth
         rows={4}
@@ -220,7 +246,37 @@ const TellMeAboutYourself = () => {
   );
 };
 
+const SaveButton = (props: {majors: string[], minors: string[], courses: string[]}) => {
+  return (
+    <Button
+      variant="contained"
+      sx = {{
+        marginTop: "10px"
+      }}
+      onClick={() => {
+
+        const about = $("#info-output").val()
+        const year = $("#year-output").val()
+        const college = $("#college-output").val()
+
+        sendInfoToBackend(props.majors, props.minors, year, college, props.courses, about)
+
+      }}
+    >
+      Save changes
+    </Button>
+  )
+}
+
 const Dashboard = () => {
+
+  const [majors, setMajors] = useState<string[]>([]);
+  const [minors, setMinors] = useState<string[]>([]);
+  const [year, setYear] = useState<string>("");
+  const [college, setCollege] = useState<string>("");
+  const [courses, setCourses] = useState<string[]>([]);
+  const [about, setAbout] = useState<string>("");
+
   return (
     <div className="dashboard">
       <Typography variant="h1">Edit your profile</Typography>
@@ -230,20 +286,21 @@ const Dashboard = () => {
       </Typography>
       <Grid container spacing={2}>
         <Grid item xs={3}>
-          <MajorSelection />
+          <MajorSelection majors = {majors} setMajors = {setMajors} />
         </Grid>
         <Grid item xs={3}>
-          <MinorSelection />
+          <MinorSelection minors = {minors} setMinors = {setMinors} />
         </Grid>
         <Grid item xs={3}>
-          <YearSelection />
+          <YearSelection year = {year} setYear = {setYear} />
         </Grid>
         <Grid item xs={3}>
-          <CollegeSelection />
+          <CollegeSelection college = {college} setCollege = {setCollege} />
         </Grid>
-        <CoursesInput />
-        <TellMeAboutYourself />
+        <CoursesInput courses = {courses} setCourses = {setCourses} />
+        <TellMeAboutYourself about = {about} setAbout = {setAbout} />
       </Grid>
+      <SaveButton majors = {majors} minors = {minors} courses = {courses}/>
     </div>
   );
 };
