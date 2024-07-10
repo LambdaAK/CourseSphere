@@ -127,7 +127,7 @@ const CollegeSelection = () => {
 const CourseList = ({ courses, handleRemove }) => {
   return (
     <Box
-      sx={{ flex: "1 1 auto", maxHeight: 200, width: 300, overflow: "auto" }}
+      sx={{ flex: "1 1 auto", height: 200, width: 300, overflow: "auto" }}
     >
       <List>
         {Array.from(courses).map((course, index: any) => (
