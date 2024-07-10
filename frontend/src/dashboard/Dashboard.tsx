@@ -17,6 +17,7 @@ import majorOptions from "./majorOptions";
 import minorOptions from "./minorOptions";
 import SearchIcon from "@mui/icons-material/Search";
 import { set } from "firebase/database";
+import courses from "../public/courses";
 
 const MajorSelection = () => {
   const [selectedMajors, setSelectedMajors] = useState<string[]>([]);
@@ -165,7 +166,7 @@ const CoursesInput = () => {
             sx={{ color: "action.active", mr: 1, my: 0.5, width: 50 }}
           />
           <Autocomplete
-            options={["cs 2110", "cs 2800"]}
+            options={courses}
             value={course}
             onChange={(event, newValue) => {
               if (newValue) {
