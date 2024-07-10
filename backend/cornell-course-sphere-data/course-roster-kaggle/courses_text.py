@@ -88,4 +88,4 @@ def main(db_name: str, file_name: str, isGathering: bool, parallel: bool = False
             print(f"An error occurred: {str(e)}")
 
 if __name__ == "__main__":
-    main('roster_reviews.sqlite.db', 'course_data', True, parallel=False, comma_delimited=True)
+    main('roster_reviews.sqlite.db', 'cornell_courses', True, parallel=False, comma_delimited=True)
