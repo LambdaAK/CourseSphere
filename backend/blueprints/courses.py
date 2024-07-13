@@ -34,6 +34,40 @@ def get_course(course_id):
         return error_response("Course not found", 404)
 
 
+@courses_bp.route("/courses/description/<int:course_id>", methods=["GET"])
+def get_course_description(course_id):
+    """
+    Retrieves the description of a specific course by its ID from the database.
+
+    :param course_id: The ID of the course to retrieve.
+    :return: A JSON response with the course description and a 200 status code.
+             If the course is not found, returns a 404 status code.
+    """
+    course = execute_query(
+        f"SELECT description FROM course_descriptions WHERE id = {course_id}"
+    ).fetchall()
+    if course:
+        return success_response(course, 200)
+    else:
+        return error_response("Course not found", 404)
+
+
+@courses_bp.route("/courses/bysection/<int:section_id>", methods=["GET"])
+def get_courses_by_section(section_id):
+    """
+    Retrieves a list of courses for a specific section from the database.
+
+    :param section_id: The ID of the section for which to retrieve courses.
+    :return: A JSON response with the list of courses and a 200 status code.
+    """
+    courses = execute_query(
+        f"SELECT * FROM courses WHERE section_id = {section_id}"
+    ).fetchall()
+    if not courses:
+        return error_response("No courses found for this section", 404)
+    return success_response(courses, 200)
+
+
 @courses_bp.route("/courses/<string:semester>", methods=["GET"])
 def get_courses_by_semester(semester):
     """
