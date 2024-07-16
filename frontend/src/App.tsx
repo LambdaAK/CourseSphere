@@ -12,7 +12,11 @@ import firebaseConfig from "./firebaseConfig";
 import 'react-toastify/dist/ReactToastify.css';
 
 const app = initializeApp(firebaseConfig);
+
 console.log(app.name) 
+
+
+
 
 const theme = createTheme({
   palette: {
