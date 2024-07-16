@@ -1,0 +1,40 @@
+.sign-up {
+  width: 100%;
+}
+
+.sign-up-box {
+  box-shadow: 0 5px 5px hsla(0, 0%, 0%, 0.25);
+  border-radius: 8px;
+  padding: 10px;
+  background-color: #f8f8f8;
+  display: flex;
+  flex-direction: column;
+  margin-top: 80px;
+  width: min(80%, 500px);
+  margin-left: auto;
+  margin-right: auto;
+  padding: 35px;
+}
+
+.sign-up-header {
+  font-size: 24px;
+  color: white;
+  margin-bottom: 20px;
+}
+
+.sign-in-button {
+  box-shadow: 0 5px 5px hsla(0, 0%, 0%, 0.25);
+  border-radius: 8px;
+  padding: 10px;
+  border-radius: 8px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+  transition: background-color 0.3s;
+  background-color: #ff4081;
+}
+.sign-in-button:hover {
+  background-color: #4CAF50;
+}
+
+/*# sourceMappingURL=SignUp.css.map */

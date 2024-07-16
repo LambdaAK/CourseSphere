@@ -1,0 +1,48 @@
+.nav {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.hamburger {
+  box-shadow: 0 5px 5px hsla(0, 0%, 0%, 0.25);
+  border-radius: 8px;
+  padding: 10px;
+  height: 50px;
+  transition: all 0.3s;
+}
+.hamburger:hover {
+  transform: translateY(2px);
+}
+
+.nav-link {
+  box-shadow: 0 5px 5px hsla(0, 0%, 0%, 0.25);
+  border-radius: 8px;
+  padding: 10px;
+  padding: 10px;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s;
+  margin: 0 10px;
+}
+@media (min-width: 768px) {
+  .nav-link {
+    font-size: 1.2rem;
+  }
+}
+
+.nav-links {
+  display: flex;
+  flex-direction: row;
+  padding-left: 40px;
+}
+
+.logged-in-as {
+  margin-left: auto;
+}
+.logged-in-as:hover {
+  cursor: pointer;
+}
+
+/*# sourceMappingURL=Nav.css.map */

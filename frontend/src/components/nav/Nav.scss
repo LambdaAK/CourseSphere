@@ -1,0 +1,52 @@
+@import "./../css/util.scss";
+
+.nav {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.hamburger {
+  @include shadow;
+  height: 50px;
+
+  transition: all 0.3s;
+
+  &:hover {
+    transform: translateY(2px);
+  }
+}
+
+.nav-button {
+
+}
+
+.nav-link {
+  @include shadow;
+  padding: 10px;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s;
+  margin: 0 10px;
+  
+  @include md {
+    font-size: 1.2rem;
+  }
+
+}
+
+.nav-links {
+  display: flex;
+  flex-direction: row;
+  padding-left: 40px;
+
+}
+
+.logged-in-as {
+  margin-left: auto;
+  &:hover {
+    cursor: pointer;
+  }
+
+}
