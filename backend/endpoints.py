@@ -5,14 +5,16 @@ from flask_cors import CORS
 
 # Firebase Initialization
 cred = credentials.Certificate("./credentials.json")
-firebase_admin.initialize_app(cred, {
-    "databaseURL": "https://coursesphere-8bd9a-default-rtdb.firebaseio.com"
-})
+firebase_admin.initialize_app(
+    cred, {"databaseURL": "https://coursesphere-8bd9a-default-rtdb.firebaseio.com"}
+)
 firebase_app = firebase_admin.get_app()
 
 # Cross Origin Resolution
 app = Flask(__name__)
 CORS(app)
+
+app.register_blueprint(courses_bp)
 
 
 def success_response(data: any, code: int):
@@ -34,7 +36,7 @@ def error_response(error: str, code: int):
     :param code: The HTTP status code.
     :return: A Flask JSON response with the error message and status code.
     """
-    return jsonify({'error': error}), code
+    return jsonify({"error": error}), code
 
 
 @app.route("/users/create", methods=["POST"])
@@ -58,15 +60,18 @@ def create_user():
     if not password:
         return error_response("Password is required", 400)
     try:
-        user = auth.create_user(email=email, password=password)  # FireBase Error OR ValueError
+        user = auth.create_user(
+            email=email, password=password
+        )  # FireBase Error OR ValueError
         user_data = {
-            'message': "User created successfully",
-            'user_id': user.uid,
-            'email': user.email
+            "message": "User created successfully",
+            "user_id": user.uid,
+            "email": user.email,
         }
         return success_response(user_data, 200)
     except Exception as e:
         return error_response(f"Error creating user: {str(e)}", 400)
+
 
 @app.route("/users/info", methods=["POST"])
 def set_user_info():
@@ -76,11 +81,11 @@ def set_user_info():
     uid = ""
     try:
         decoded_token = auth.verify_id_token(id_token)
-        uid = decoded_token['uid']
+        uid = decoded_token["uid"]
 
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-    
+
     majors = data.get("majors")
     minors = data.get("minors")
     year = data.get("year")
@@ -96,14 +101,15 @@ def set_user_info():
         "year": year,
         "college": college,
         "courses": courses,
-        "about": about
+        "about": about,
     }
 
-    ref = db.reference(f'users/{uid}/info')
+    ref = db.reference(f"users/{uid}/info")
 
     ref.set(user_info)
 
     return jsonify({"message": "User info set successfully", "uid": uid}), 200
+
 
 @app.route("/users/info", methods=["GET"])
 def get_user_info():
@@ -113,17 +119,16 @@ def get_user_info():
     uid = ""
     try:
         decoded_token = auth.verify_id_token(id_token)
-        uid = decoded_token['uid']
+        uid = decoded_token["uid"]
 
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-    
-    ref = db.reference(f'users/{uid}/info')
+
+    ref = db.reference(f"users/{uid}/info")
     user_info = ref.get()
 
     return jsonify(user_info), 200
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
