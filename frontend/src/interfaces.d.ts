@@ -51,9 +51,12 @@ interface ProfessorRecommendation {
   };
 }
 
+
+
 interface Response {
-  user: string;
-  bot: string;
+  user?: string;
+  bot?: string;
 }
+
 
 type Recommendation = CourseRecommendation | ProfessorRecommendation;

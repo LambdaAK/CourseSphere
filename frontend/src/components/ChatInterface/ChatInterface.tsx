@@ -4,38 +4,10 @@ import SearchIcon from '@mui/icons-material/Search';
 import CourseCard from '../CourseCard/CourseCard';
 import ProfessorCard from '../ProfessorCard/ProfessorCard';
 
+
 interface Response {
   user?: string;
   bot?: string;
-}
-
-interface CourseRecommendation {
-  type: 'course';
-  data: {
-    name: string;
-    type: string;
-    sectionNumber: string;
-    location: string;
-    days: string;
-    time: string;
-    dates: string;
-    instructor: string;
-    reviews: string[];
-  };
-}
-
-interface ProfessorRecommendation {
-  type: 'professor';
-  data: {
-    name: string;
-    title: string;
-    departments: string;
-    imageUrl: string;
-    email: string;
-    phone: string;
-    education: string;
-    reviews: string[];
-  };
 }
 
 const ChatInterface: React.FC = () => {

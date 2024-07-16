@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from "@mui/material";
 import { createTheme } from '@mui/material/styles';
 import { ToastContainer } from 'react-toastify';
-//import Nav from "./nav/Nav";
 import Header from "./components/header/Header";
 import Home from "./pages/home/Home";
 import Dashboard from "./pages/dashboard/Dashboard";
@@ -14,6 +13,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const app = initializeApp(firebaseConfig);
 console.log(app.name) 
+
 const theme = createTheme({
   palette: {
     primary: {
@@ -61,5 +61,3 @@ export default function App() {
     </>
   );
 }
-
-
