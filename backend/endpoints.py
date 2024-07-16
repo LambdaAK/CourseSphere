@@ -1,5 +1,6 @@
 import firebase_admin
 from firebase_admin import credentials, auth, db
+from firebase_admin import credentials, auth, db
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from query_manager import QueryManager
@@ -11,6 +12,8 @@ firebase_admin.initialize_app(firebase_credentials, { "databaseURL": database_ur
 firebase_app = firebase_admin.get_app()
 app = Flask(__name__)
 CORS(app)
+
+app.register_blueprint(courses_bp)
 
 
 def success_response(data: any, code: int):
@@ -56,15 +59,18 @@ def create_user():
     if not password:
         return error_response("Password is required", 400)
     try:
-        user = auth.create_user(email=email, password=password)  # FireBase Error OR ValueError
+        user = auth.create_user(
+            email=email, password=password
+        )  # FireBase Error OR ValueError
         user_data = {
-            'message': "User created successfully",
-            'user_id': user.uid,
-            'email': user.email
+            "message": "User created successfully",
+            "user_id": user.uid,
+            "email": user.email,
         }
         return success_response(user_data, 200)
     except Exception as e:
         return error_response(f"Error creating user: {str(e)}", 400)
+
 
 @app.route("/users/info", methods=["POST"])
 def set_user_info():

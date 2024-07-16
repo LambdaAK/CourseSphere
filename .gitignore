@@ -1,0 +1,6 @@
+*config.json
+
+*.idea*
+*.vscode*
+
+*.db*
