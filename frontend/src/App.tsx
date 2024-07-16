@@ -2,45 +2,41 @@ import { initializeApp } from "firebase/app";
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from "@mui/material";
 import { createTheme } from '@mui/material/styles';
-import Nav from "./nav/Nav";
-import Home from "./home/Home";
-import Dashboard from "./dashboard/Dashboard";
-import SignIn from "./signin/SignIn";
-import SignUp from "./signup/SignUp";
 import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+//import Nav from "./nav/Nav";
+import Header from "./components/header/Header";
+import Home from "./pages/home/Home";
+import Dashboard from "./pages/dashboard/Dashboard";
+import SignIn from "./pages/signin/SignIn";
+import SignUp from "./pages/signup/SignUp";
 import firebaseConfig from "./firebaseConfig";
+import 'react-toastify/dist/ReactToastify.css';
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-console.log(app.name) // testing and my linter throws errors when stuff is not used
-
-// Define theme
+console.log(app.name) 
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#5c6bc0', // Primary color
+      main: '#5c6bc0', 
     },
     secondary: {
-      main: '#ff4081', // Secondary color
+      main: '#ff4081', 
     },
   },
   typography: {
-    fontFamily: 'Roboto, Arial, sans-serif', // Custom font family
+    fontFamily: 'Roboto, Arial, sans-serif', 
     h1: {
-      fontSize: '2rem', // Custom font size for h1
+      fontSize: '2rem', 
     },
-    // Add more typography settings as needed
   },
-  spacing: 8, // Default spacing unit
-  // Add more customizations as needed
+  spacing: 8,
 });
 
 export default function App() {
   return (
     <>
       <ThemeProvider theme={theme}>
-        <Nav />
+        <Header />
         <Router>
           <Routes>
             <Route path="/" element={<Home />} />

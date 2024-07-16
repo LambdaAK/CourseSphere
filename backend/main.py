@@ -47,4 +47,6 @@ def get_query_details(query: str) -> dict:
 
 response = get_query_details(query)
 
+
+
 print(response)

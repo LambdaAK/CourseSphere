@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./Dashboard.css";
 import {
   Autocomplete,
@@ -16,11 +16,11 @@ import {
 import majorOptions from "./majorOptions";
 import minorOptions from "./minorOptions";
 import SearchIcon from "@mui/icons-material/Search";
-import { Database, getDatabase, set } from "firebase/database";
-import allCourses from "../public/courses";
+import { Database, getDatabase} from "firebase/database";
+import allCourses from "../../public/courses";
 import { FirebaseApp, initializeApp } from "firebase/app";
-import { Auth, getAuth } from "firebase/auth";
-import firebaseConfig from "../firebaseConfig";
+import { Auth, getAuth, onAuthStateChanged } from "firebase/auth";
+import firebaseConfig from "../../firebaseConfig";
 import { toast } from "react-toastify";
 import $ from "jquery";
 
@@ -28,15 +28,48 @@ const app: FirebaseApp = initializeApp(firebaseConfig);
 const database: Database = getDatabase(app)
 const auth: Auth = getAuth()
 
-const sendInfoToBackend = (
+
+const sendInfoToBackend = async (
   majors: string[], 
   minors: string[], 
   year: string, 
   college: string, 
   courses: string[], 
   about: string) => {
+
+  // send the data to /users/info
+
+  const user = auth.currentUser
+  if (user == null) {
+    alert("Not logged in")
+    return
+  }
+
+  const idToken = await user.getIdToken()
   
-  alert(`Sending the following data to the backend: \n\nmajors: ${majors}\nminors: ${minors}\nyear: ${year}\ncollege: ${college}\ncourses: ${courses}\nabout: ${about}`)
+  const data = {
+    majors: majors,
+    minors: minors,
+    year: year,
+    college: college,
+    courses: courses,
+    about: about,
+    id_token: idToken
+  }
+
+  fetch("http://127.0.0.1:5000/users/info", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  })
+  .then(() => {
+    toast.success("Successfully saved your information!")
+  })
+  .catch((e: Error) => {
+    toast.error(`Failed to save your information: ${e}`)
+  })
 
 }
 
@@ -123,11 +156,16 @@ const collegeOptions = [
 ];
 
 const YearSelection = (props: {year: string, setYear: Function}) => {
+  const {year, setYear} = props
   return (
     <Autocomplete
       className="selector"
       id = "year-output"
-      disablePortal
+      disablePortal 
+      value = {year}
+      onChange = {(event, newValue) => {
+        setYear(newValue)
+      }}
       options={yearOptions}
       sx={{ width: 200 }}
       renderInput={(params) => <TextField {...params} label="Year" />}
@@ -136,16 +174,22 @@ const YearSelection = (props: {year: string, setYear: Function}) => {
 };
 
 const CollegeSelection = (props: {college: string, setCollege: Function}) => {
+  const {college, setCollege} = props
   return (
     <Autocomplete
       className="selector"
       id = "college-output"
+      value = {college}
+      onChange = {(event, newValue) => {
+        setCollege(newValue)
+      }}
       disablePortal
       options={collegeOptions}
       sx={{ width: 200 }}
-      renderInput={(params) => <TextField {...params} label="College" />}
-    />
-  );
+      renderInput={(params) => {
+        return <TextField {...params} label="College" />
+      }}
+    />);
 };
 
 const CourseList = (props: {courses: string[], handleRemove: Function}) => {
@@ -224,11 +268,12 @@ const CoursesInput = (props: {courses: string[], setCourses: Function}) => {
   );
 };
 
-const TellMeAboutYourself = (props: {about: string, setAbout: Function}) => {
+const TellMeAboutYourself = () => {
   return (
     <Grid item xs={12}>
       <Typography variant="h6">Tell me about yourself</Typography>
-      <Typography variant="body2" sx={{ marginBottom: 2 }}>
+      <Typography 
+      variant="body2" sx={{ marginBottom: 2 }}>
         This will be used to create a personalized experience. Our model will
         extract relevant insights from this text to steer our AI to make more
         targetted recommendations. Please fill this in concisely and
@@ -268,6 +313,64 @@ const SaveButton = (props: {majors: string[], minors: string[], courses: string[
   )
 }
 
+const fetchAndSetDataIfLoggedIn = async (
+  setMajors: Function,
+  setMinors: Function,
+  setYear: Function,
+  setCollege: Function,
+  setCourses: Function,
+) => {
+  onAuthStateChanged(auth, async (user) => {
+
+    if (user == null) return
+
+    const idToken = await user.getIdToken()
+
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/users/info?id_token=${idToken}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+        }
+      })
+
+      const data = await response.json()
+
+      if (data["majors"]) {
+        setMajors(data["majors"])
+      }
+
+      if (data["minors"]) {
+        setMinors(data["minors"])
+      }
+
+      if (data["year"]) {
+        //$("#year-output").val(data["year"])
+        setYear(data["year"])
+      }
+
+      if (data["college"]) {
+        //$("#college-output").val(data["college"])
+        setCollege(data["college"])
+      }
+
+      if (data["courses"]) {
+        setCourses(data["courses"])
+      }
+
+      if (data["about"]) {
+        $("#info-output").val(data["about"])
+        //setAbout(data["about"])
+      }
+
+    }
+
+    catch (e) {
+      toast.error(`Failed to fetch data: ${e}`)
+    }
+})
+}
+
 const Dashboard = () => {
 
   const [majors, setMajors] = useState<string[]>([]);
@@ -275,7 +378,19 @@ const Dashboard = () => {
   const [year, setYear] = useState<string>("");
   const [college, setCollege] = useState<string>("");
   const [courses, setCourses] = useState<string[]>([]);
-  const [about, setAbout] = useState<string>("");
+
+  useEffect(() => {
+
+      fetchAndSetDataIfLoggedIn(
+        setMajors,
+        setMinors,
+        setYear,
+        setCollege,
+        setCourses,
+      )
+    }, [])
+  
+    
 
   return (
     <div className="dashboard">
@@ -298,7 +413,7 @@ const Dashboard = () => {
           <CollegeSelection college = {college} setCollege = {setCollege} />
         </Grid>
         <CoursesInput courses = {courses} setCourses = {setCourses} />
-        <TellMeAboutYourself about = {about} setAbout = {setAbout} />
+        <TellMeAboutYourself />
       </Grid>
       <SaveButton majors = {majors} minors = {minors} courses = {courses}/>
     </div>

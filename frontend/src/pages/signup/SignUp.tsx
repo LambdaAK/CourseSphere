@@ -3,12 +3,12 @@ import $ from "jquery"
 import Button from '@mui/material/Button';
 import { TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import firebaseConfig from "./../firebaseConfig"
+import firebaseConfig from "../../firebaseConfig";
 import { FirebaseApp, initializeApp } from "firebase/app";
 import { Database, getDatabase } from "firebase/database";
 import { Auth, getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { usersCreate } from "../api";
-import { Id, toast } from "react-toastify";
+import { usersCreate } from "../../api.tsx";
+import { toast } from "react-toastify";
 
 
 const app: FirebaseApp = initializeApp(firebaseConfig);

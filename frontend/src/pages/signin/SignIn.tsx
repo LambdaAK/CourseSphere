@@ -1,11 +1,11 @@
 import { Button, TextField, Typography } from "@mui/material"
 import { useState } from "react"
 import $ from "jquery"
-import { usersCreate } from "../api"
+import { usersCreate } from "../../api"
 import { toast } from "react-toastify"
 import { Auth, getAuth, signInWithEmailAndPassword } from "firebase/auth"
 import { FirebaseApp, initializeApp } from "firebase/app"
-import firebaseConfig from "../firebaseConfig"
+import firebaseConfig from "../../firebaseConfig"
 import { Database, getDatabase } from "firebase/database"
 
 
