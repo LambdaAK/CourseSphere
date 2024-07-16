@@ -1,3 +1,27 @@
-
-
+.home {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    width: 100%;
+  }
+  
+  .user-chats-container {
+    margin-left: 0;
+    flex-grow: 0;
+    width: 20%;
+    background-color: #f0f0f0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .chat-interface-container {
+    flex-grow: 3;
+    padding: 5px;
+    background-color: #ffffff;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  
 /*# sourceMappingURL=Home.css.map */

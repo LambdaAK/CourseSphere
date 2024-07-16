@@ -1,16 +1,15 @@
-import React, { useState, ChangeEvent, FormEvent, useRef, useEffect } from 'react';
-import { Paper, TextField, IconButton, Box, Typography, Collapse, Container } from '@mui/material';
+import { useState, ChangeEvent, FormEvent, useRef, useEffect } from 'react';
+import { Paper, IconButton, Box, Typography, Container, InputBase, Collapse } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import CourseCard from '../CourseCard/CourseCard';
-import ProfessorCard from '../ProfessorCard/ProfessorCard';
-
+import CardDeck from '../DeckOfCards/CardDeck';
+import './ChatInterface.scss';
 
 interface Response {
   user?: string;
   bot?: string;
 }
 
-const ChatInterface: React.FC = () => {
+export default function ChatInterface() {
   const [query, setQuery] = useState<string>('');
   const [responses, setResponses] = useState<Response[]>([]);
   const [recommendations, setRecommendations] = useState<(CourseRecommendation | ProfessorRecommendation)[]>([]);
@@ -62,6 +61,20 @@ const ChatInterface: React.FC = () => {
             instructor: 'Prof. John Doe',
             reviews: ['Great course!', 'Learned a lot.']
           }
+        },
+        {
+          type: 'course',
+          data: {
+            name: 'MATH 3110',
+            type: 'Lecture',
+            sectionNumber: '1',
+            location: 'Online',
+            days: 'MWF',
+            time: '10:00 AM - 11:00 AM',
+            dates: '08/23/2023 - 12/09/2023',
+            instructor: 'Prof. ROBERT',
+            reviews: ['NO!', 'NAHat.']
+          }
         }
       ];
     } else if (query.toLowerCase().includes('teachers')) {
@@ -78,6 +91,19 @@ const ChatInterface: React.FC = () => {
             education: 'PhD in Computer Science',
             reviews: ['Very knowledgeable.', 'Great teaching style.']
           }
+        },
+        {
+          type: 'professor',
+          data: {
+            name: 'Prof. ARTHURT Smith',
+            title: 'Associate Professor',
+            departments: 'Computer Science',
+            imageUrl: 'https://via.placeholder.com/150',
+            email: 'jane.smith@university.edu',
+            phone: '123-456-7890',
+            education: 'PhD in Computer Science',
+            reviews: ['Very knowledgeable.', 'Great teaching style.']
+          }
         }
       ];
     }
@@ -86,67 +112,111 @@ const ChatInterface: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 10 }}>
-      <Box sx={{ p: 2, width: '100%', bgcolor: '#f0f0f0', borderRadius: '16px', boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)' }}>
-        <Box sx={{ width: '100%', mb: 2, textAlign: 'center' }}>
-          <Typography variant="h5" sx={{ mb: 2 }}>CourseSphere</Typography>
+    <Container maxWidth="md" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 1 }}>
+      <strong>
+        TODO: FIX THIS SO THE cjhat HAS BUBBLES, IT STOPPED WORKING randomly
+        TODO: FIX THIS SO THE TEXT SEARCH BAR HAS THE SAME WIDTH AS THE CHAT WINDOW, AND IS PERFECTLY SITUATED UNDERNEATH/overlayed, with the icon layered on top. 
+        TODO: MAKE THIS SO IT FUNCTIONS LIKE CHATGPT'S Search, where it grows in size depending on text input size and introduces a scrollbar if needed.</strong>
+      <Box
+        sx={{
+          p: 2,
+          width: '100%',
+          bgcolor: '#f0f0f0',
+          borderRadius: '16px',
+          boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
+          position: 'relative',
+          height: '80vh',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <Box sx={{ width: '100%', textAlign: 'center' }}>
+          <Typography variant="h5" sx={{ mb: 2 }}>
+            CourseSphere
+          </Typography>
         </Box>
-
-        <Box ref={chatWindowRef} sx={{ width: '100%', maxHeight: '60vh', overflowY: 'auto', flexGrow: 1 }}>
+        <Box ref={chatWindowRef} className="chat-window">
           {responses.map((res, index) => (
-            <Box key={index} sx={{ display: 'flex', flexDirection: 'column', alignItems: res.user ? 'flex-end' : 'flex-start', mb: 2 }}>
+            <Box
+              key={index}
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: res.user ? 'flex-end' : 'flex-start',
+                mb: 2,
+              }}
+            >
               <Box sx={{ display: 'flex', justifyContent: res.user ? 'flex-end' : 'flex-start' }}>
-                <Box sx={{
-                  maxWidth: '70%',
-                  minWidth: '20%',
-                  p: 2,
-                  borderRadius: '12px',
-                  alignSelf: res.user ? 'flex-end' : 'flex-start',
-                  bgcolor: res.user ? '#1976d2' : 'white',
-                  color: res.user ? 'white' : 'black',
-                  boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-                  textAlign: 'left',
-                  fontSize: '15px',
-                }}>
-                  <Typography variant="caption" sx={{ color: res.user ? 'white' : 'gray', mb: 1 }}>{res.user ? 'You' : 'Course Sphere'}</Typography>
+                <Box
+                  className={`shared ${res.user ? 'sent' : 'received'} ${
+                    index > 0 && responses[index - 1].user === res.user ? 'noTail' : ''
+                  }`}
+                >
+                  <Typography variant="caption" sx={{ color: res.user ? 'white' : 'gray', mb: 1 }}>
+                    {res.user ? 'You' : 'CourseSphere'}
+                  </Typography>
                   <Typography variant="body1">{res.user || res.bot}</Typography>
                 </Box>
               </Box>
+
               {res.bot && recommendations.length > 0 && (
-                <Box sx={{ display: 'flex', justifyContent: 'flex-start', flexDirection: 'column', alignItems: 'flex-start', mt: 1 }}>
-                  {recommendations.map((rec, recIndex) => (
-                    <Collapse key={recIndex} in={true} sx={{ mb: 2 }}>
-                      {rec.type === 'course' && <CourseCard {...rec.data} />}
-                      {rec.type === 'professor' && <ProfessorCard {...rec.data} />}
-                    </Collapse>
-                  ))}
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    mt: 1,
+                  }}
+                >
+                  <Collapse in={true} sx={{ mb: 2 }}>
+                    <CardDeck cards={recommendations} />
+                  </Collapse>
                 </Box>
               )}
             </Box>
           ))}
         </Box>
-        <Paper component="form" sx={{
-          display: 'flex',
-          alignItems: 'center',
-          width: '100%',
+      </Box>
+      <Paper
+        component="form"
+        sx={{
           p: '2px 4px',
           boxShadow: 3,
-          borderRadius: '24px',
-          mt: 2,
-        }} onSubmit={handleSubmit}>
-          <TextField variant="standard" placeholder="Type your message"
-            value={query}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
-            sx={{ ml: 1, flex: 1, borderRadius: '24px', '& .MuiInputBase-root': { p: '10px' } }}
-            InputProps={{ disableUnderline: true }}
-          />
-          <IconButton type="submit" sx={{ p: '10px' }} aria-label="send">
-            <SearchIcon />
-          </IconButton>
-        </Paper>
-      </Box>
+          borderRadius: '20px',
+          width: '100%',
+          maxWidth: '600px', // Adjust max width as needed
+          display: 'flex',
+          alignItems: 'center',
+          mt: 2, // Add margin to position search bar underneath chat window
+        }}
+        onSubmit={handleSubmit}
+      >
+        <InputBase
+          placeholder="Type your message"
+          value={query}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
+          sx={{
+            ml: 1,
+            flex: 1,
+            borderRadius: '20px',
+            padding: '10px',
+            fontFamily: 'inherit',
+            fontSize: 'inherit',
+            lineHeight: 'inherit',
+            border: 'none',
+            boxShadow: 'inset 0 0 3px rgba(0,0,0,0.1)',
+            overflowY: 'auto', // Add vertical scrollbar if needed
+            maxHeight: '100px', // Max height before scrolling
+          }}
+          inputProps={{
+            'aria-label': 'type message',
+          }}
+        />
+        <IconButton type="submit" sx={{ p: '10px' }} aria-label="send">
+          <SearchIcon />
+        </IconButton>
+      </Paper>
     </Container>
   );
-};
-
-export default ChatInterface;
+}

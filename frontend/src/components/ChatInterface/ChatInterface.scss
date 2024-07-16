@@ -1,0 +1,105 @@
+.list {
+  --sentColor: #007AFF;
+  --receiveColor: #E5E5EA;
+  --bg: #fff;
+
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  [data-theme='dark'] & {
+    --bg: #161515;
+  }
+}
+
+.shared {
+  position: relative;
+  max-width: 255px;
+  margin-bottom: 15px;
+  padding: 10px 20px;
+  line-height: 24px;
+  word-wrap: break-word;
+  border-radius: 25px;
+
+  &:before,
+  &:after {
+    position: absolute;
+    bottom: 0;
+    content: '';
+    height: 25px; /* Height of the bubble "tail" */
+  }
+
+  &:before {
+    width: 20px;
+  }
+
+  &:after {
+    width: 26px;
+    background-color: var(--bg); /* All tails have the same background */
+  }
+}
+
+.sent {
+  align-self: flex-end;
+  color: white;
+  background: var(--sentColor);
+
+  &:before {
+    right: -7px;
+    background-color: var(--sentColor);
+    border-bottom-left-radius: 16px 14px;
+  }
+
+  &:after {
+    right: -26px;
+    border-bottom-left-radius: 10px;
+  }
+}
+
+.received {
+  align-self: flex-start;
+  color: black;
+  background: var(--receiveColor);
+
+  &:before {
+    left: -7px;
+    background-color: var(--receiveColor);
+    border-bottom-right-radius: 16px 14px;
+  }
+
+  &:after {
+    left: -26px;
+    border-bottom-right-radius: 10px;
+  }
+}
+
+.noTail {
+  margin-bottom: 2px;
+
+  &:before,
+  &:after {
+    opacity: 0;
+  }
+}
+
+.chat-window {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  flex-grow: 1;
+  padding-bottom: 60px; /* Space for the fixed input area */
+  padding-right: 20px; /* Add padding to prevent clipping */
+  position: relative; /* Ensure relative positioning for absolute elements */
+}
+
+.input-area {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 10px; /* Adjust padding as needed */
+  background-color: white; /* Example background color */
+  border-top: 1px solid #ccc; /* Example border */
+}

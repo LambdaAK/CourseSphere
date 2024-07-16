@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useEffect, useState } from "react";
 import "./Dashboard.css";
 import {
   Autocomplete,
@@ -17,7 +16,7 @@ import {
 import majorOptions from "./majorOptions";
 import minorOptions from "./minorOptions";
 import SearchIcon from "@mui/icons-material/Search";
-import { Database, getDatabase} from "firebase/database";
+import { Database, getDatabase, set } from "firebase/database";
 import allCourses from "../../public/courses";
 import { FirebaseApp, initializeApp } from "firebase/app";
 import { Auth, getAuth, onAuthStateChanged } from "firebase/auth";
@@ -31,48 +30,12 @@ const auth: Auth = getAuth()
 
 
 const sendInfoToBackend = async (
-
-const sendInfoToBackend = async (
   majors: string[], 
   minors: string[], 
   year: string, 
   college: string, 
   courses: string[], 
   about: string) => {
-
-  // send the data to /users/info
-
-  const user = auth.currentUser
-  if (user == null) {
-    alert("Not logged in")
-    return
-  }
-
-  const idToken = await user.getIdToken()
-  
-  const data = {
-    majors: majors,
-    minors: minors,
-    year: year,
-    college: college,
-    courses: courses,
-    about: about,
-    id_token: idToken
-  }
-
-  fetch("http://127.0.0.1:5000/users/info", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  })
-  .then(() => {
-    toast.success("Successfully saved your information!")
-  })
-  .catch((e: Error) => {
-    toast.error(`Failed to save your information: ${e}`)
-  })
 
   // send the data to /users/info
 
@@ -194,16 +157,10 @@ const collegeOptions = [
 
 const YearSelection = (props: {year: string, setYear: Function}) => {
   const {year, setYear} = props
-  const {year, setYear} = props
   return (
     <Autocomplete
       className="selector"
       id = "year-output"
-      disablePortal 
-      value = {year}
-      onChange = {(event, newValue) => {
-        setYear(newValue)
-      }}
       disablePortal 
       value = {year}
       onChange = {(event, newValue) => {
@@ -218,7 +175,6 @@ const YearSelection = (props: {year: string, setYear: Function}) => {
 
 const CollegeSelection = (props: {college: string, setCollege: Function}) => {
   const {college, setCollege} = props
-  const {college, setCollege} = props
   return (
     <Autocomplete
       className="selector"
@@ -227,17 +183,9 @@ const CollegeSelection = (props: {college: string, setCollege: Function}) => {
       onChange = {(event, newValue) => {
         setCollege(newValue)
       }}
-      value = {college}
-      onChange = {(event, newValue) => {
-        setCollege(newValue)
-      }}
       disablePortal
       options={collegeOptions}
       sx={{ width: 200 }}
-      renderInput={(params) => {
-        return <TextField {...params} label="College" />
-      }}
-    />);
       renderInput={(params) => {
         return <TextField {...params} label="College" />
       }}
@@ -321,12 +269,9 @@ const CoursesInput = (props: {courses: string[], setCourses: Function}) => {
 };
 
 const TellMeAboutYourself = () => {
-const TellMeAboutYourself = () => {
   return (
     <Grid item xs={12}>
       <Typography variant="h6">Tell me about yourself</Typography>
-      <Typography 
-      variant="body2" sx={{ marginBottom: 2 }}>
       <Typography 
       variant="body2" sx={{ marginBottom: 2 }}>
         This will be used to create a personalized experience. Our model will
@@ -426,64 +371,6 @@ const fetchAndSetDataIfLoggedIn = async (
 })
 }
 
-const fetchAndSetDataIfLoggedIn = async (
-  setMajors: Function,
-  setMinors: Function,
-  setYear: Function,
-  setCollege: Function,
-  setCourses: Function,
-) => {
-  onAuthStateChanged(auth, async (user) => {
-
-    if (user == null) return
-
-    const idToken = await user.getIdToken()
-
-    try {
-      const response = await fetch(`http://127.0.0.1:5000/users/info?id_token=${idToken}`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json"
-        }
-      })
-
-      const data = await response.json()
-
-      if (data["majors"]) {
-        setMajors(data["majors"])
-      }
-
-      if (data["minors"]) {
-        setMinors(data["minors"])
-      }
-
-      if (data["year"]) {
-        //$("#year-output").val(data["year"])
-        setYear(data["year"])
-      }
-
-      if (data["college"]) {
-        //$("#college-output").val(data["college"])
-        setCollege(data["college"])
-      }
-
-      if (data["courses"]) {
-        setCourses(data["courses"])
-      }
-
-      if (data["about"]) {
-        $("#info-output").val(data["about"])
-        //setAbout(data["about"])
-      }
-
-    }
-
-    catch (e) {
-      toast.error(`Failed to fetch data: ${e}`)
-    }
-})
-}
-
 const Dashboard = () => {
 
   const [majors, setMajors] = useState<string[]>([]);
@@ -491,19 +378,6 @@ const Dashboard = () => {
   const [year, setYear] = useState<string>("");
   const [college, setCollege] = useState<string>("");
   const [courses, setCourses] = useState<string[]>([]);
-
-  useEffect(() => {
-
-      fetchAndSetDataIfLoggedIn(
-        setMajors,
-        setMinors,
-        setYear,
-        setCollege,
-        setCourses,
-      )
-    }, [])
-  
-    
 
   useEffect(() => {
 
@@ -539,7 +413,6 @@ const Dashboard = () => {
           <CollegeSelection college = {college} setCollege = {setCollege} />
         </Grid>
         <CoursesInput courses = {courses} setCourses = {setCourses} />
-        <TellMeAboutYourself />
         <TellMeAboutYourself />
       </Grid>
       <SaveButton majors = {majors} minors = {minors} courses = {courses}/>
