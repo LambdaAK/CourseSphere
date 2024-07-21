@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Box, ThemeProvider } from "@mui/material";
 import { createTheme } from '@mui/material/styles';
 import { ToastContainer } from 'react-toastify';
-import Header from "./components/header/Header"
+import Header from "./components/Header/Header"
 import Footer from "./components/Footer/Footer";
 import Home from "./pages/home/Home";
 import Dashboard from "./pages/dashboard/Dashboard";
