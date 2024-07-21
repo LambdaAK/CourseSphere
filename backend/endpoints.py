@@ -13,7 +13,8 @@ firebase_app = firebase_admin.get_app()
 app = Flask(__name__)
 CORS(app)
 
-app.register_blueprint(courses_bp)
+# TODO: figure out the blueprint thing below
+#app.register_blueprint(courses_bp)
 
 
 def success_response(data: any, code: int):
