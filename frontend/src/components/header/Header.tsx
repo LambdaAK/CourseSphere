@@ -1,4 +1,4 @@
-import Nav from "../nav/Nav";
+import Nav from "../Nav/Nav";
 import './header.css';
 
 export default function Header() {

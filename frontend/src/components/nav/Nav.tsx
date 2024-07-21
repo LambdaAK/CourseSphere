@@ -33,14 +33,26 @@ function NavLink(props: { text: string, path: string }) {
 }
 
 const NavLinks = (props: { visible: boolean }) => {
-  return (
+  if (auth.currentUser == null) return (
     <ButtonGroup variant="contained" color="inherit">
       <NavLink text="Home" path="/" />
       <NavLink text="Dashboard" path="/dashboard" />
       <NavLink text="Sign in" path="/signin" />
       <NavLink text="Sign up" path="/signup" />
     </ButtonGroup>
-  );
+  )
+  else return (
+    <ButtonGroup variant="contained" color="inherit">
+      <NavLink text="Home" path="/" />
+      <NavLink text="Dashboard" path="/dashboard" />
+      <Button variant="outlined" onClick={() => {
+        auth.signOut();
+        window.location.replace("/")
+      }}>
+        Sign out
+      </Button>
+    </ButtonGroup>
+  )
 };
 
 export default function Nav() {
