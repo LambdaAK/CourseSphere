@@ -1,51 +1,17 @@
-.nav {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-}
+/* Error: Can't find stylesheet to import.
+ *   ,
+ * 1 | @import "./../css/util.scss";
+ *   |         ^^^^^^^^^^^^^^^^^^^^
+ *   '
+ *   src/components/nav/Nav.scss 1:9  root stylesheet */
 
-.hamburger {
-  box-shadow: 0 5px 5px hsla(0, 0%, 0%, 0.25);
-  border-radius: 8px;
-  padding: 10px;
-  height: 50px;
-  transition: all 0.3s;
+body::before {
+  font-family: "Source Code Pro", "SF Mono", Monaco, Inconsolata, "Fira Mono",
+      "Droid Sans Mono", monospace, monospace;
+  white-space: pre;
+  display: block;
+  padding: 1em;
+  margin-bottom: 1em;
+  border-bottom: 2px solid black;
+  content: "Error: Can't find stylesheet to import.\a   \2577 \a 1 \2502  @import \"./../css/util.scss\";\a   \2502          ^^^^^^^^^^^^^^^^^^^^\a   \2575 \a   src/components/nav/Nav.scss 1:9  root stylesheet";
 }
-.hamburger:hover {
-  transform: translateY(2px);
-}
-
-.nav-link {
-  box-shadow: 0 5px 5px hsla(0, 0%, 0%, 0.25);
-  border-radius: 8px;
-  padding: 10px;
-  padding: 10px;
-  text-align: center;
-  text-decoration: none;
-  font-weight: 600;
-  transition: color 0.3s;
-  margin: 0 10px;
-}
-@media (min-width: 768px) {
-  .nav-link {
-    font-size: 1.2rem;
-  }
-}
-
-.nav-links {
-  display: flex;
-  flex-direction: row;
-  padding-left: 40px;
-}
-
-.logged-in-as {
-  margin-left: auto;
-}
-.logged-in-as:hover {
-  cursor: pointer;
-}
-
-
-/*# sourceMappingURL=Nav.css.map */
-
-
