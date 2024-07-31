@@ -46,7 +46,7 @@ export default function ChatInterface() {
     const botResponse = `"${query}"`;
     let newRecommendations: (CourseRecommendation | ProfessorRecommendation)[] = [];
 
-    if (query.toLowerCase().includes('courses')) {
+    if (query.toLowerCase().includes('course')) {
       newRecommendations = [
         {
           type: 'course',
@@ -77,7 +77,7 @@ export default function ChatInterface() {
           }
         }
       ];
-    } else if (query.toLowerCase().includes('teachers')) {
+    } else if (new RegExp('teacher|professor').test(query.toLowerCase())) {
       newRecommendations = [
         {
           type: 'professor',
@@ -114,7 +114,7 @@ export default function ChatInterface() {
   return (
     <Container maxWidth="md" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 1 }}>
       <strong>
-        TODO: FIX THIS SO THE cjhat HAS BUBBLES, IT STOPPED WORKING randomly
+        TODO: FIX THIS SO THE chat HAS BUBBLES, IT STOPPED WORKING randomly
         TODO: FIX THIS SO THE TEXT SEARCH BAR HAS THE SAME WIDTH AS THE CHAT WINDOW, AND IS PERFECTLY SITUATED UNDERNEATH/overlayed, with the icon layered on top. 
         TODO: MAKE THIS SO IT FUNCTIONS LIKE CHATGPT'S Search, where it grows in size depending on text input size and introduces a scrollbar if needed.</strong>
       <Box
@@ -146,16 +146,16 @@ export default function ChatInterface() {
                 mb: 2,
               }}
             >
-              <Box sx={{ display: 'flex', justifyContent: res.user ? 'flex-end' : 'flex-start' }}>
+              <Box sx={{display: 'flex', justifyContent: res.user ? 'flex-end' : 'flex-start' }}>
                 <Box
                   className={`shared ${res.user ? 'sent' : 'received'} ${
                     index > 0 && responses[index - 1].user === res.user ? 'noTail' : ''
                   }`}
                 >
-                  <Typography variant="caption" sx={{ color: res.user ? 'white' : 'gray', mb: 1 }}>
+                  <Typography variant="caption" sx={{ color: res.user ? 'black' : 'gray', mb: 1 }}>
                     {res.user ? 'You' : 'CourseSphere'}
                   </Typography>
-                  <Typography variant="body1">{res.user || res.bot}</Typography>
+                  <Typography variant="body1" sx={{ borderRadius: "15px", padding: "5px", paddingLeft: "15px", paddingRight: "15px", backgroundColor: res.user ? '#34b1eb' : '#71757a'}}>{res.user || res.bot}</Typography>
                 </Box>
               </Box>
 
@@ -194,6 +194,7 @@ export default function ChatInterface() {
       >
         <InputBase
           placeholder="Type your message"
+          contentEditable="true"
           value={query}
           onChange={(e: ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
           sx={{
@@ -208,6 +209,8 @@ export default function ChatInterface() {
             boxShadow: 'inset 0 0 3px rgba(0,0,0,0.1)',
             overflowY: 'auto', // Add vertical scrollbar if needed
             maxHeight: '100px', // Max height before scrolling
+            width: '200%',
+            maxWidth: '600px', // Adjust max width as needed
           }}
           inputProps={{
             'aria-label': 'type message',
