@@ -113,8 +113,6 @@ export default function ChatInterface() {
 
   return (
     <Container maxWidth="md" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 1 }}>
-      <strong>
-        TODO: MAKE THIS SO IT FUNCTIONS LIKE CHATGPT'S Search, where it grows in size depending on text input size and introduces a scrollbar if needed.</strong>
       <Box
         sx={{
           p: 2,
@@ -176,10 +174,9 @@ export default function ChatInterface() {
           ))}
         </Box>
       </Box>
-      <Paper
+      <Box
         component="form"
         sx={{
-          p: '2px 4px',
           boxShadow: 3,
           borderRadius: '20px',
           width: '100%',
@@ -188,25 +185,29 @@ export default function ChatInterface() {
           display: 'flex',
           alignItems: 'center',
           mt: 2, // Add margin to position search bar underneath chat window
+          marginBottom: '20px'
+        }}
+        onKeyDown={e => {
+          if (e.key === "Enter") {
+              handleSubmit(e);
+          }
         }}
         onSubmit={handleSubmit}
       >
         <InputBase
           placeholder="Ask CourseSphere anything..."
           contentEditable="true"
-          fullWidth={true}
+          multiline={true}
           value={query}
           onChange={(e: ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
           sx={{
             ml: 1,
             flex: 1,
             borderRadius: '20px',
-            padding: '10px',
+            padding: '15px',
             fontFamily: 'inherit',
             fontSize: 'inherit',
             lineHeight: 'inherit',
-            borderWidth: '110px',
-            boxShadow: 'inset 0 0 3px rgba(0,0,0,0.1)',
             overflowY: 'auto', // Add vertical scrollbar if needed
             maxHeight: '100px', // Max height before scrolling
             width: '100%',
@@ -218,7 +219,7 @@ export default function ChatInterface() {
         <IconButton type="submit" sx={{ p: '10px' }} aria-label="send">
           <SearchIcon />
         </IconButton>
-      </Paper>
+      </Box>
     </Container>
   );
 }
