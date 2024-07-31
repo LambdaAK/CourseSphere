@@ -114,8 +114,6 @@ export default function ChatInterface() {
   return (
     <Container maxWidth="md" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 1 }}>
       <strong>
-        TODO: FIX THIS SO THE chat HAS BUBBLES, IT STOPPED WORKING randomly
-        TODO: FIX THIS SO THE TEXT SEARCH BAR HAS THE SAME WIDTH AS THE CHAT WINDOW, AND IS PERFECTLY SITUATED UNDERNEATH/overlayed, with the icon layered on top. 
         TODO: MAKE THIS SO IT FUNCTIONS LIKE CHATGPT'S Search, where it grows in size depending on text input size and introduces a scrollbar if needed.</strong>
       <Box
         sx={{
@@ -185,7 +183,8 @@ export default function ChatInterface() {
           boxShadow: 3,
           borderRadius: '20px',
           width: '100%',
-          maxWidth: '600px', // Adjust max width as needed
+          paddingLeft: '10px',
+          paddingRight: '10px',
           display: 'flex',
           alignItems: 'center',
           mt: 2, // Add margin to position search bar underneath chat window
@@ -193,8 +192,9 @@ export default function ChatInterface() {
         onSubmit={handleSubmit}
       >
         <InputBase
-          placeholder="Type your message"
+          placeholder="Ask CourseSphere anything..."
           contentEditable="true"
+          fullWidth={true}
           value={query}
           onChange={(e: ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
           sx={{
@@ -205,12 +205,11 @@ export default function ChatInterface() {
             fontFamily: 'inherit',
             fontSize: 'inherit',
             lineHeight: 'inherit',
-            border: 'none',
+            borderWidth: '110px',
             boxShadow: 'inset 0 0 3px rgba(0,0,0,0.1)',
             overflowY: 'auto', // Add vertical scrollbar if needed
             maxHeight: '100px', // Max height before scrolling
-            width: '200%',
-            maxWidth: '600px', // Adjust max width as needed
+            width: '100%',
           }}
           inputProps={{
             'aria-label': 'type message',
