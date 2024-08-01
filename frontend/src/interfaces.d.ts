@@ -1,3 +1,7 @@
+// A file defining interfaces used in the frontend //
+
+
+
 interface ProfessorCardProps {
   name: string;
   title: string;

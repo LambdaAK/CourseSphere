@@ -1,29 +1,7 @@
 import { Button, TextField, Typography } from "@mui/material";
 import { useState } from "react";
-import $ from "jquery";
-import { toast } from "react-toastify";
-import { Auth, getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { FirebaseApp, initializeApp } from "firebase/app";
-import firebaseConfig from "../../firebaseConfig";
-import { Database, getDatabase } from "firebase/database";
-import './login.css'; // Ensure the CSS file is imported
-
-const app: FirebaseApp = initializeApp(firebaseConfig);
-const database: Database = getDatabase(app);
-const auth: Auth = getAuth();
-
-const performLogin = () => {
-  const email: string = $("#login-email-input").val();
-  const password: string = $("#login-password-input").val();
-
-  signInWithEmailAndPassword(auth, email, password)
-    .then(() => {
-      window.location.replace("/");
-    })
-    .catch((e) => {
-      toast.error(`Login failed: ${e.message}`);
-    });
-};
+import { performLogin } from "../../api.tsx";
+import './login.css'; 
 
 const LoginHeader = () => {
   return (
@@ -60,7 +38,7 @@ const LoginBox = () => {
   const [password, setPassword] = useState<string>('');
 
   return (
-    <div className="login-box"> {/* Reuse the class name from SignUp.css */}
+    <div className="login-box"> 
       <LoginHeader />
       <TextField
         id="login-email-input"
@@ -81,7 +59,7 @@ const LoginBox = () => {
       />
       <LoginButton email={email} password={password} />
       <Typography
-        className="login-footer" // Reuse the class name from SignUp.css
+        className="login-footer" 
         variant="body2"
       >
         Don't have an account?{' '}
@@ -97,12 +75,11 @@ const LoginBox = () => {
   );
 };
 
-const Login = () => {
+export default function Login() {
   return (
     <div className="login"> 
       <LoginBox />
     </div>
   );
-};
+}
 
-export default Login;

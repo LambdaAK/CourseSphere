@@ -16,62 +16,8 @@ import {
 import majorOptions from "./majorOptions";
 import minorOptions from "./minorOptions";
 import SearchIcon from "@mui/icons-material/Search";
-import { Database, getDatabase, set } from "firebase/database";
-import allCourses from "../../public/courses";
-import { FirebaseApp, initializeApp } from "firebase/app";
-import { Auth, getAuth, onAuthStateChanged } from "firebase/auth";
-import firebaseConfig from "../../firebaseConfig";
-import { toast } from "react-toastify";
-import $ from "jquery";
+import { saveProfileChanges, setProfileInfoIfLoggedIn } from "../../api.tsx";
 
-const app: FirebaseApp = initializeApp(firebaseConfig);
-const database: Database = getDatabase(app)
-const auth: Auth = getAuth()
-
-
-const sendInfoToBackend = async (
-  majors: string[], 
-  minors: string[], 
-  year: string, 
-  college: string, 
-  courses: string[], 
-  about: string) => {
-
-  // send the data to /users/info
-
-  const user = auth.currentUser
-  if (user == null) {
-    alert("Not logged in")
-    return
-  }
-
-  const idToken = await user.getIdToken()
-  
-  const data = {
-    majors: majors,
-    minors: minors,
-    year: year,
-    college: college,
-    courses: courses,
-    about: about,
-    id_token: idToken
-  }
-
-  fetch("http://127.0.0.1:5000/users/info", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  })
-  .then(() => {
-    toast.success("Successfully saved your information!")
-  })
-  .catch((e: Error) => {
-    toast.error(`Failed to save your information: ${e}`)
-  })
-
-}
 
 const MajorSelection = (props: {majors: string[], setMajors: Function}) => {
   const {majors, setMajors} = props;
@@ -268,7 +214,7 @@ const CoursesInput = (props: {courses: string[], setCourses: Function}) => {
   );
 };
 
-const TellMeAboutYourself = () => {
+const TellMeAboutYourself = (props: {about: string, setCourses: Function}) => {
   return (
     <Grid item xs={12}>
       <Typography variant="h6">Tell me about yourself</Typography>
@@ -293,100 +239,31 @@ const TellMeAboutYourself = () => {
 
 const SaveButton = (props: {majors: string[], minors: string[], courses: string[]}) => {
   return (
-    <Button
-      variant="contained"
-      sx = {{
-        marginTop: "10px"
-      }}
+    <Button variant="contained" sx = {{ marginTop: "10px" }}
       onClick={() => {
-
-        const about = $("#info-output").val()
-        const year = $("#year-output").val()
-        const college = $("#college-output").val()
-
-        sendInfoToBackend(props.majors, props.minors, year, college, props.courses, about)
-
-      }}
-    >
+        saveProfileChanges(props.majors, props.minors, props.courses)
+      }}>
       Save changes
     </Button>
   )
 }
 
-const fetchAndSetDataIfLoggedIn = async (
-  setMajors: Function,
-  setMinors: Function,
-  setYear: Function,
-  setCollege: Function,
-  setCourses: Function,
-) => {
-  onAuthStateChanged(auth, async (user) => {
-
-    if (user == null) return
-
-    const idToken = await user.getIdToken()
-
-    try {
-      const response = await fetch(`http://127.0.0.1:5000/users/info?id_token=${idToken}`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json"
-        }
-      })
-
-      const data = await response.json()
-
-      if (data["majors"]) {
-        setMajors(data["majors"])
-      }
-
-      if (data["minors"]) {
-        setMinors(data["minors"])
-      }
-
-      if (data["year"]) {
-        //$("#year-output").val(data["year"])
-        setYear(data["year"])
-      }
-
-      if (data["college"]) {
-        //$("#college-output").val(data["college"])
-        setCollege(data["college"])
-      }
-
-      if (data["courses"]) {
-        setCourses(data["courses"])
-      }
-
-      if (data["about"]) {
-        $("#info-output").val(data["about"])
-        //setAbout(data["about"])
-      }
-
-    }
-
-    catch (e) {
-      toast.error(`Failed to fetch data: ${e}`)
-    }
-})
-}
-
 const Dashboard = () => {
-
   const [majors, setMajors] = useState<string[]>([]);
   const [minors, setMinors] = useState<string[]>([]);
   const [year, setYear] = useState<string>("");
   const [college, setCollege] = useState<string>("");
   const [courses, setCourses] = useState<string[]>([]);
+  const [about, setAbout] = useState<string>("");
 
   useEffect(() => {
-
-      fetchAndSetDataIfLoggedIn(
+      setProfileInfoIfLoggedIn(
         setMajors,
         setMinors,
         setYear,
         setCollege,
         setCourses,
+        setAbout,
       )
     }, [])
   
@@ -413,7 +290,7 @@ const Dashboard = () => {
           <CollegeSelection college = {college} setCollege = {setCollege} />
         </Grid>
         <CoursesInput courses = {courses} setCourses = {setCourses} />
-        <TellMeAboutYourself />
+        <TellMeAboutYourself about = {about} setAbout = {setAbout}/>
       </Grid>
       <SaveButton majors = {majors} minors = {minors} courses = {courses}/>
     </div>

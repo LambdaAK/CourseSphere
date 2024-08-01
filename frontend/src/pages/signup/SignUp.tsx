@@ -1,46 +1,10 @@
 import "./SignUp.css"
-import $ from "jquery"
 import Button from '@mui/material/Button';
 import { TextField, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
-import firebaseConfig from "../../firebaseConfig";
-import { FirebaseApp, initializeApp } from "firebase/app";
-import { Database, getDatabase } from "firebase/database";
-import { Auth, getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { usersCreate } from "../../api.tsx";
-import { toast } from "react-toastify";
-
-
-const app: FirebaseApp = initializeApp(firebaseConfig);
-const database: Database = getDatabase(app)
-const auth: Auth = getAuth()
-
-
-const performSignup = () => {
-  const email: string = $("#signup-email-input").val()
-  const password: string = $("#signup-password-input").val()
-
-  usersCreate(email, password)
-    .then(() => {
-      signInWithEmailAndPassword(auth, email, password)
-      window.location.replace("/")
-    })
-    .catch((e) => {
-      toast(`Sign up failed: ${e}`, {
-        position: "top-right",
-        hideProgressBar: true,
-        closeOnClick: true,   
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light"
-        })
-    })
-
-}
+import { useState } from "react";
+import { performSignup } from "../../api.tsx";
 
 const SignUpButton = (props: {email: string, password: string}) => {
-
   return (
     <Button style = {
       {
@@ -68,10 +32,8 @@ const SignUpHeader = () => {
 }
 
 const SignUpBox = () => {
-
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
-
   return (
     <div className = "sign-up-box">
       <SignUpHeader/>
@@ -89,7 +51,6 @@ const SignUpBox = () => {
 }
 
 const SignUp = () => {
-
   return (
     <div className = "sign-up">
       <SignUpBox/>
