@@ -1,6 +1,7 @@
 import { Button, TextField, Typography } from "@mui/material";
 import { useState } from "react";
-import { performLogin } from "../../api.tsx";
+import { performLogin } from "../../api.ts";
+
 import './login.css'; 
 
 const LoginHeader = () => {

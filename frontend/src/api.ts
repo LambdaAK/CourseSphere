@@ -180,7 +180,7 @@ async function saveProfileChanges (majors: string[], minors: string[], courses: 
 };
 
 export {
-  usersCreate,
+  createUser,
   performSignup,
   performLogin,
   saveProfileChanges,

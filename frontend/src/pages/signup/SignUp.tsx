@@ -2,7 +2,7 @@ import "./SignUp.css"
 import Button from '@mui/material/Button';
 import { TextField, Typography } from "@mui/material";
 import { useState } from "react";
-import { performSignup } from "../../api.tsx";
+import { performSignup } from "../../api.ts";
 
 const SignUpButton = (props: {email: string, password: string}) => {
   return (

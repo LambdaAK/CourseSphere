@@ -16,7 +16,8 @@ import {
 import majorOptions from "./majorOptions";
 import minorOptions from "./minorOptions";
 import SearchIcon from "@mui/icons-material/Search";
-import { saveProfileChanges, setProfileInfoIfLoggedIn } from "../../api.tsx";
+import { saveProfileChanges, setProfileInfoIfLoggedIn } from "../../api.ts";
+
 
 
 const MajorSelection = (props: {majors: string[], setMajors: Function}) => {
