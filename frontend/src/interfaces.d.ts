@@ -51,12 +51,14 @@ interface ProfessorRecommendation {
   };
 }
 
-
-
 interface Response {
   user?: string;
   bot?: string;
 }
 
+interface Chat {
+  title: string;
+  timestamp: string;
+}
 
 type Recommendation = CourseRecommendation | ProfessorRecommendation;

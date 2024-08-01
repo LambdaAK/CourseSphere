@@ -7,10 +7,11 @@ import Header from "./components/header/Header"
 import Footer from "./components/Footer/Footer";
 import Home from "./pages/home/Home";
 import Dashboard from "./pages/dashboard/Dashboard";
-import SignIn from "./pages/signin/SignIn";
+import Login from "./pages/login/Login";
 import SignUp from "./pages/signup/SignUp";
 import firebaseConfig from "./firebaseConfig";
 import 'react-toastify/dist/ReactToastify.css';
+
 
 const app = initializeApp(firebaseConfig);
 console.log(app.name) 
@@ -41,7 +42,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/signin" element={<SignIn />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
           </Routes>
         </Router>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   AppBar,
   Button,
@@ -32,43 +32,30 @@ function NavLink(props: { text: string, path: string }) {
   );
 }
 
-const NavLinks = (props: { visible: boolean }) => {
-  if (auth.currentUser == null) return (
-    <ButtonGroup variant="contained" color="inherit">
-      <NavLink text="Home" path="/" />
-      <NavLink text="Dashboard" path="/dashboard" />
-      <NavLink text="Sign in" path="/signin" />
-      <NavLink text="Sign up" path="/signup" />
-    </ButtonGroup>
-  )
-  else return (
-    <ButtonGroup variant="contained" color="inherit">
-      <NavLink text="Home" path="/" />
-      <NavLink text="Dashboard" path="/dashboard" />
+const NavLinks = ({ isLoggedIn }: { isLoggedIn: boolean }) => (
+  <ButtonGroup variant="contained" color="inherit">
+    <NavLink text="Home" path="/" />
+    <NavLink text="Dashboard" path="/dashboard" />
+    {!isLoggedIn ? (
+      <NavLink text="Login" path="/login" />
+    ) : (
       <Button variant="outlined" onClick={() => {
         auth.signOut();
-        window.location.replace("/")
+        window.location.replace("/");
       }}>
-        Sign out
+        Logout
       </Button>
-    </ButtonGroup>
-  )
-};
+    )}
+  </ButtonGroup>
+);
 
 export default function Nav() {
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
-  const [email, setEmail] = useState<string>('');
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setLoggedIn(true);
-        setEmail(user.email || '');
-      } else {
-        setLoggedIn(false);
-        setEmail('');
-      }
+      setLoggedIn(!!user);
     });
   }, []);
 
@@ -87,19 +74,13 @@ export default function Nav() {
       <ListItem button onClick={() => window.location.href = '/dashboard'}>
         <ListItemText primary="Dashboard" />
       </ListItem>
-      {!loggedIn && (
-        <>
-          <ListItem button onClick={() => window.location.href = '/signup'}>
-            <ListItemText primary="Sign Up" />
-          </ListItem>
-          <ListItem button onClick={() => window.location.href = '/signin'}>
-            <ListItemText primary="Sign In" />
-          </ListItem>
-        </>
-      )}
-      {loggedIn && (
+      {!loggedIn ? (
+        <ListItem button onClick={() => window.location.href = '/login'}>
+          <ListItemText primary="Login" />
+        </ListItem>
+      ) : (
         <ListItem button onClick={() => { auth.signOut(); window.location.href = '/'; }}>
-          <ListItemText primary="Sign Out" />
+          <ListItemText primary="Logout" />
         </ListItem>
       )}
     </List>
@@ -115,9 +96,8 @@ export default function Nav() {
           CourseSphere
         </Typography>
         <Hidden smDown>
-          <NavLinks visible={true} />
+          <NavLinks isLoggedIn={loggedIn} />
         </Hidden>
-      
         <Hidden smUp>
           <IconButton edge="end" color="inherit" aria-label="menu" onClick={toggleDrawer(true)}>
             <MenuIcon />

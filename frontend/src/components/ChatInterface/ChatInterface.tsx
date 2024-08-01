@@ -112,7 +112,8 @@ export default function ChatInterface() {
   };
 
   return (
-    <Container maxWidth="md" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 1 }}>
+    <Container maxWidth="md" sx={{ display: 'flex',   flexDirection: 'column', alignItems: 'center', mt: 1 }}>
+      
       <Box
         sx={{
           p: 2,

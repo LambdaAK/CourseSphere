@@ -1,0 +1,36 @@
+@import "./../../css/util.scss";
+.login-up {
+  width: 100%;
+}
+
+.login-box {
+  @include shadow;
+  background-color: $soft-white;
+  display: flex;
+  flex-direction: column;
+  margin-top: 80px;
+  width: min(80%, 500px);
+  margin-left: auto;
+  margin-right: auto;
+  padding: 35px;
+}
+
+.login-header {
+  font-size: 24px;
+  color: white;
+  margin-bottom: 20px;
+}
+
+.login-button {
+  @include shadow;
+  border-radius: 8px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+  transition: background-color 0.3s;
+  background-color: $bright-red;
+
+  &:hover {
+    background-color: #4CAF50;
+  }
+}
