@@ -138,7 +138,7 @@ def get_user_info(id_token=None):
     user_info = ref.get()
     return success_response(user_info, 200)
 
-@app.route("/users/query", methods=["GET"])
+@app.route("/users/query", methods=["POST"])
 def get_user_query():
     """
     Handles different types of user queries based on the 'query_type' field in the request body.

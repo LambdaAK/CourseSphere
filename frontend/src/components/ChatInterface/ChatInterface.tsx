@@ -2,7 +2,7 @@ import { useState, ChangeEvent, FormEvent, useRef, useEffect } from 'react';
 import { Paper, IconButton, Box, Typography, Container, InputBase, Collapse } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CardDeck from '../DeckOfCards/CardDeck';
-import { etchCourseSphereResponse} from "../../api.ts";
+import { fetchCourseSphereResponse} from "../../api.ts";
 import './ChatInterface.scss';
 
 interface Response {

@@ -185,13 +185,12 @@ async function saveProfileChanges (majors: string[], minors: string[], courses: 
  * @returns 
  */
 async function fetchCourseSphereResponse(query: string) {
-
   const user = auth.currentUser;
   const userIdToken = user?.getIdToken;
   const data = { query, userIdToken };
 
   const response = await fetch("http://127.0.0.1:5000/users/query", {
-    method: "GET",
+    method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
