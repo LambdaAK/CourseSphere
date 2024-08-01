@@ -9,8 +9,6 @@ const app: FirebaseApp = initializeApp(firebaseConfig);
 const database: Database = getDatabase(app);
 const auth: Auth = getAuth();
 
-
-// Helper
 async function createUser (email: string, password: string) {
   const response = await fetch('http://127.0.0.1:5000/users/create', {
     method: 'POST',
@@ -22,9 +20,9 @@ async function createUser (email: string, password: string) {
   });
   const json = await response.json();
   return json;
-};
+}
 
-// Main for helper 
+
 function performSignup() {
   const email: string = $("#signup-email-input").val();
   const password: string = $("#signup-password-input").val();
@@ -177,7 +175,82 @@ async function saveProfileChanges (majors: string[], minors: string[], courses: 
   .catch((e: Error) => {
     toast.error(`Failed to save your information: ${e}`);
   });
-};
+}
+
+
+/**
+ * This functions sends the query, as well as the user id (if the user is logged in) to the backend and returns the response. 
+ * 
+ * @param query 
+ * @returns 
+ */
+async function fetchCourseSphereResponse(query: string) {
+
+  const user = auth.currentUser;
+  const userIdToken = user?.getIdToken;
+  const data = { query, userIdToken };
+
+  const response = await fetch("http://127.0.0.1:5000/users/query", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  })
+  .then(response => response.json())
+  .then(result => {
+    toast.success("Successfully retrieved bot response!");
+    return {
+      botResponse: result.botResponse,
+      newRecommendations: result.newRecommendations || []
+    };
+  })
+  .catch((error: Error) => {
+    console.error("Failed to fetch bot response:", error);
+    toast.error(`Failed to fetch bot response: ${error.message}`);
+    return {
+      botResponse: `Failed to get bot response, most likely an Unsupported Query: echo "${query}", This is testing, in the future, it will simply return: "Unsupported Query"`,
+      newRecommendations: []
+    };
+  });
+  return response;
+}
+
+async function saveCourseSphereChat() {
+  const user = auth.currentUser;
+
+  if (user == null) {
+    alert("Not logged in");
+    return;
+  }
+
+  try {
+    // Get the user's ID token if needed for authenticated operations
+    //const idToken = await user.getIdToken();
+
+    // Current plan: Use jQuery to grab all text boxes currently within the chat (DOM), or switch to redux idk
+    // Assuming chat messages are inside elements with class 'chat-message' 
+    //const chatMessages = [];
+    //$('.chat-message').each((index, element) => {
+      //chatMessages.push($(element).text().trim());
+    //});
+
+    // Define the chat data to save
+    //const chatData = {
+     // messages: chatMessages,
+      //timestamp: new Date(),
+    //};
+
+    // Save chat data to Firebase Firestore
+    //const db = firestore(); // Initialize Firestore
+    //await database.collection('userChats').doc(user.uid).set(chatData, { merge: true });
+
+    alert("Chat history saved successfully!");
+  } catch (error) {
+    console.error("Error saving chat history:", error);
+    alert("Failed to save chat history.");
+  }
+}
 
 export {
   createUser,
@@ -185,4 +258,6 @@ export {
   performLogin,
   saveProfileChanges,
   setProfileInfoIfLoggedIn,
+  fetchCourseSphereResponse,
+  saveCourseSphereChat,
 };

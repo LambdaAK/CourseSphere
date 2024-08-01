@@ -5,7 +5,6 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from query_manager import QueryManager
 
-
 firebase_credentials = credentials.Certificate("./credentials.json")
 database_url = "https://coursesphere-8bd9a-default-rtdb.firebaseio.com"
 firebase_admin.initialize_app(firebase_credentials, { "databaseURL": database_url })
@@ -15,7 +14,6 @@ CORS(app)
 
 # TODO: figure out the blueprint thing below
 #app.register_blueprint(courses_bp)
-
 
 def success_response(data: any, code: int):
     """
@@ -91,7 +89,6 @@ def set_user_info():
     data = request.get_json()
     id_token = data.get("id_token")
     uid = ""
-
     try:
         decoded_token = auth.verify_id_token(id_token)
         uid = decoded_token['uid']
@@ -109,9 +106,9 @@ def set_user_info():
     user_info = {
         "majors": majors,
         "minors": minors,
-        "year": year,
-        "college": college,
         "courses": courses,
+        "college": college,
+        "year": year,
         "about": about
     }
 
@@ -121,15 +118,16 @@ def set_user_info():
 
 
 @app.route("/users/info", methods=["GET"])
-def get_user_info():
+def get_user_info(id_token=None): 
     """
     Retrieves user information based on the provided ID token.
 
     Expects a query parameter `id_token` in the request.
     """
     # get the idtoken of the user and authenticate it
-
-    id_token = request.args.get("id_token")
+    if (id_token == None): 
+        id_token = request.args.get("id_token")
+    
     uid = ""
     try:
         decoded_token = auth.verify_id_token(id_token)
@@ -140,7 +138,7 @@ def get_user_info():
     user_info = ref.get()
     return success_response(user_info, 200)
 
-@app.route("/user/query", methods=["POST"])
+@app.route("/users/query", methods=["GET"])
 def get_user_query():
     """
     Handles different types of user queries based on the 'query_type' field in the request body.
@@ -151,14 +149,17 @@ def get_user_query():
     # Compose query_manager functions (or abstract that away within said file and make it a one-shot func call
     # Whatever else jerry / alex implemented
     # Return the results to the frontend
+    data = request.get_json()
+    query = data.get("query")
+    id_token = data.get("id_token")
 
-    try:
-        query = 'hehe'
-        qm = QueryManager(query)
-        return success_response(qm.response, 200)
+    try:    
+        user_data = get_user_info(id_token)
+        qm = QueryManager(query, user_data)
+        data = qm.response
+        return success_response(data, 200)
     except Exception as e:
         return error_response(f"Error getting generating query: {str(e)}", 400)
-
 
 
 if __name__ == '__main__':

@@ -15,8 +15,9 @@ import {
 } from "@mui/material";
 import majorOptions from "./majorOptions";
 import minorOptions from "./minorOptions";
-import SearchIcon from "@mui/icons-material/Search";
+import { allCornellCourses  } from "./courses.ts";
 import { saveProfileChanges, setProfileInfoIfLoggedIn } from "../../api.ts";
+import SearchIcon from "@mui/icons-material/Search";
 
 
 
@@ -182,7 +183,7 @@ const CoursesInput = (props: {courses: string[], setCourses: Function}) => {
             sx={{ color: "action.active", mr: 1, my: 0.5, width: 50 }}
           />
           <Autocomplete
-            options={allCourses}
+            options={allCornellCourses}
             value={course}
             id = "courses-output"
             onChange={(event: any, newValue: string | null) => {

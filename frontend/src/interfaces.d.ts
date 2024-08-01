@@ -31,7 +31,6 @@ interface CourseRecommendation {
   data: {
     name: string;
     type: string;
-    sectionNumber: string;
     location: string;
     days: string;
     time: string;
@@ -55,10 +54,7 @@ interface ProfessorRecommendation {
   };
 }
 
-interface Response {
-  user?: string;
-  bot?: string;
-}
+
 
 interface Chat {
   title: string;

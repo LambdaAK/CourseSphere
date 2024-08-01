@@ -1,4 +1,4 @@
-const courses = [
+export const allCornellCourses = [
   "AAP 1100",
   "AAP 1602",
   "AAP 3099",
@@ -19229,5 +19229,3 @@ const courses = [
   "ZULU 3113",
   "ZULU 3114"
   ];
-
-export default courses;

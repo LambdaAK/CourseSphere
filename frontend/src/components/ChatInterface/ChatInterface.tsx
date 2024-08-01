@@ -2,6 +2,7 @@ import { useState, ChangeEvent, FormEvent, useRef, useEffect } from 'react';
 import { Paper, IconButton, Box, Typography, Container, InputBase, Collapse } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CardDeck from '../DeckOfCards/CardDeck';
+import { etchCourseSphereResponse} from "../../api.ts";
 import './ChatInterface.scss';
 
 interface Response {
@@ -9,13 +10,16 @@ interface Response {
   bot?: string;
 }
 
+
+
+
 export default function ChatInterface() {
   const [query, setQuery] = useState<string>('');
   const [responses, setResponses] = useState<Response[]>([]);
   const [recommendations, setRecommendations] = useState<(CourseRecommendation | ProfessorRecommendation)[]>([]);
   const chatWindowRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to bottom of chat window on initial load and when responses change
+  
   useEffect(() => {
     if (chatWindowRef.current) {
       chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
@@ -26,94 +30,29 @@ export default function ChatInterface() {
     event.preventDefault();
     if (query.trim() === '') return;
 
-    // Echo user message
     const newResponses: Response[] = [...responses, { user: query }];
 
     try {
-      const { botResponse, newRecommendations } = await fetchBotResponseAndRecommendations(query);
+      const { botResponse, newRecommendations } = await fetchCourseSphereResponse(query);
       const updatedResponses: Response[] = [...newResponses, { bot: botResponse }];
       setResponses(updatedResponses);
       setRecommendations(newRecommendations);
     } catch (error) {
       console.error('Error fetching bot response:', error);
     }
-
     setQuery('');
   };
 
-  const fetchBotResponseAndRecommendations = async (query: string) => {
-    // Placeholder logic for fetching bot response and recommendations
-    const botResponse = `"${query}"`;
-    let newRecommendations: (CourseRecommendation | ProfessorRecommendation)[] = [];
-
-    if (query.toLowerCase().includes('course')) {
-      newRecommendations = [
-        {
-          type: 'course',
-          data: {
-            name: 'CS 1110',
-            type: 'Lecture',
-            sectionNumber: '1',
-            location: 'Online',
-            days: 'MWF',
-            time: '10:00 AM - 11:00 AM',
-            dates: '08/23/2023 - 12/09/2023',
-            instructor: 'Prof. John Doe',
-            reviews: ['Great course!', 'Learned a lot.']
-          }
-        },
-        {
-          type: 'course',
-          data: {
-            name: 'MATH 3110',
-            type: 'Lecture',
-            sectionNumber: '1',
-            location: 'Online',
-            days: 'MWF',
-            time: '10:00 AM - 11:00 AM',
-            dates: '08/23/2023 - 12/09/2023',
-            instructor: 'Prof. ROBERT',
-            reviews: ['NO!', 'NAHat.']
-          }
-        }
-      ];
-    } else if (new RegExp('teacher|professor').test(query.toLowerCase())) {
-      newRecommendations = [
-        {
-          type: 'professor',
-          data: {
-            name: 'Prof. Jane Smith',
-            title: 'Associate Professor',
-            departments: 'Computer Science',
-            imageUrl: 'https://via.placeholder.com/150',
-            email: 'jane.smith@university.edu',
-            phone: '123-456-7890',
-            education: 'PhD in Computer Science',
-            reviews: ['Very knowledgeable.', 'Great teaching style.']
-          }
-        },
-        {
-          type: 'professor',
-          data: {
-            name: 'Prof. ARTHURT Smith',
-            title: 'Associate Professor',
-            departments: 'Computer Science',
-            imageUrl: 'https://via.placeholder.com/150',
-            email: 'jane.smith@university.edu',
-            phone: '123-456-7890',
-            education: 'PhD in Computer Science',
-            reviews: ['Very knowledgeable.', 'Great teaching style.']
-          }
-        }
-      ];
+  const determineChatClassName = (user : string | undefined)  => {
+    if (user) {
+      return "user-response"
+    } else {
+      return "bot-response"
     }
-
-    return { botResponse, newRecommendations };
-  };
+  }
 
   return (
-    <Container maxWidth="md" sx={{ display: 'flex',   flexDirection: 'column', alignItems: 'center', mt: 1 }}>
-      
+    <Container maxWidth="md" sx={{ display: 'flex',   flexDirection: 'column', alignItems: 'center', mt: 1 }}>-
       <Box
         sx={{
           p: 2,
@@ -152,12 +91,12 @@ export default function ChatInterface() {
                   <Typography variant="caption" sx={{ color: res.user ? 'black' : 'gray', mb: 1 }}>
                     {res.user ? 'You' : 'CourseSphere'}
                   </Typography>
-                  <Typography variant="body1" sx={{ borderRadius: "15px", padding: "5px", paddingLeft: "15px", paddingRight: "15px", backgroundColor: res.user ? '#34b1eb' : '#71757a'}}>{res.user || res.bot}</Typography>
+                  <Typography className={determineChatClassName(res.user)} variant="body1" sx={{ borderRadius: "15px", padding: "5px", paddingLeft: "15px", paddingRight: "15px", backgroundColor: res.user ? '#34b1eb' : '#71757a'}}>{res.user || res.bot}</Typography>
                 </Box>
               </Box>
 
               {res.bot && recommendations.length > 0 && (
-                <Box
+                <Box className= {"bot-courses"}
                   sx={{
                     display: 'flex',
                     justifyContent: 'flex-start',

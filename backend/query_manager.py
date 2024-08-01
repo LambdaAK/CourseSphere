@@ -1,4 +1,7 @@
 from openai import OpenAI
+from endpoints.py import CourseSphereUser
+from dataclasses import dataclass, field
+from typing import List
 import json
 
 # Load configuration and question types
@@ -6,23 +9,45 @@ config = json.load(open("./config.json", "r"))
 client = OpenAI(api_key=config['openai_api_key'])
 
 
+@dataclass
+class CourseSphereUser:
+    """
+    A quick representation of relevant information tied to the user to be sent to the query manager
+    """
+    majors: List[str] = field(default_factory=list)
+    minors: List[str] = field(default_factory=list)
+    courses: List[str] = field(default_factory=list)
+    college: str = ""
+    year: str = ""
+    about: str = ""
+
+@dataclass
+class Course:
+    name: str
+
+@dataclass
+class Professor:
+    name: str
+
 class QueryManager:
     """
     A class designed to manage model queries and their returns.
     """
 
-    def __init__(self, query):
+    def __init__(self, query, user_data):
         """
         Initializes a query manager object with fields representing the process of returning
         the response
         :param query: The query to be managed (im running out of ideas)
         """
         assert (query is not None)
+        
         self.query = query
+        self.user_data = CourseSphereUser(user_data)
         self.query_types = json.load(open("query_types.json", "r"))
         self.prompt = self.generate_prompt()
         self.query_details = self.get_query_details()
-        self.response = ''
+        self.response = 'this is a generic backend test response. will change once jerry adds the AI stuff to backend.'
 
     def generate_prompt(self) -> str:
         """
@@ -65,7 +90,16 @@ class QueryManager:
             prompt=self.prompt,
             max_tokens=1000
         )
-        return json.loads(response.to_dict()['choices'][0]['text'])  # questionable warning
+        return json.loads(response.to_dict()['choices'][0]['text'])  # questionable warning'
+    
+    # The actual LLM stuff, make use of self.user_data, and self.query. 
+    def get_response_to_query(self) -> dict:
+        """
+        """
+        hasUserData = (self.user_data != None)
+        pass
+
+
 
 
 if __name__ == '__main__':
