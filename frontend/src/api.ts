@@ -142,16 +142,12 @@ async function setProfileInfoIfLoggedIn(
  * @returns 
  */
 async function saveProfileChanges (majors: string[], minors: string[], courses: string[]) {
+  if (!ensureUserLoggedIn()) return;
   const user = auth.currentUser;
-  if (user == null) {
-    alert("Not logged in");
-    return;
-  }
-
   const about = $("#info-output").val()
   const year = $("#year-output").val()
   const college = $("#college-output").val()
-  const idToken = await user.getIdToken();
+  const idToken = await user?.getIdToken(); // User won't be null due to the early return statement above, ignore the ?. 
 
   const data = {
     majors: majors,
@@ -187,8 +183,8 @@ async function saveProfileChanges (majors: string[], minors: string[], courses: 
  */
 async function fetchCourseSphereResponse(query: string) {
   const user = auth.currentUser;
-  const userIdToken = user?.getIdToken;
-  const data = { query, userIdToken };
+  const idToken = await user?.getIdToken();
+  const data = { query, idToken };
 
   const response = await fetch("http://127.0.0.1:5000/users/query", {
     method: "POST",
