@@ -11,8 +11,6 @@ interface Response {
 }
 
 
-
-
 export default function ChatInterface() {
   const [query, setQuery] = useState<string>('');
   const [responses, setResponses] = useState<Response[]>([]);
@@ -124,7 +122,7 @@ export default function ChatInterface() {
           paddingRight: '10px',
           display: 'flex',
           alignItems: 'center',
-          mt: 2, // Add margin to position search bar underneath chat window
+          mt: 2,
           marginBottom: '20px'
         }}
         onKeyDown={e => {
@@ -148,8 +146,8 @@ export default function ChatInterface() {
             fontFamily: 'inherit',
             fontSize: 'inherit',
             lineHeight: 'inherit',
-            overflowY: 'auto', // Add vertical scrollbar if needed
-            maxHeight: '100px', // Max height before scrolling
+            overflowY: 'auto', 
+            maxHeight: '100px', 
             width: '100%',
           }}
           inputProps={{

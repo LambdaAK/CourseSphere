@@ -1,5 +1,4 @@
 from openai import OpenAI
-from endpoints.py import CourseSphereUser
 from dataclasses import dataclass, field
 from typing import List
 import json
@@ -21,10 +20,12 @@ class CourseSphereUser:
     year: str = ""
     about: str = ""
 
+# prob good across all colleges.
 @dataclass
 class Course:
     name: str
 
+#Needs a way to generalize accross all JSONS in course roster, some fields will be optional, some core.
 @dataclass
 class Professor:
     name: str
@@ -44,10 +45,10 @@ class QueryManager:
         
         self.query = query
         self.user_data = CourseSphereUser(user_data)
-        self.query_types = json.load(open("query_types.json", "r"))
+        self.query_types_dict = json.load(open("query_types.json", "r"))
         self.prompt = self.generate_prompt()
-        self.query_details = self.get_query_details()
-        self.response = 'this is a generic backend test response. will change once jerry adds the AI stuff to backend.'
+        self.query_type = self.classify_query_type()
+        self.response = 'AI not implemented'
 
     def generate_prompt(self) -> str:
         """
@@ -60,7 +61,7 @@ class QueryManager:
         return (f"""
         Respond to this prompt with a JSON object ONLY! No other output.
                         
-        Consider the following query types with parameters: {str(self.query_types)}
+        Consider the following query types with parameters: {str(self.query_types_dict)}
         The keys in the parameter list represent the parameters, and the values of those keys
         represent the data types that those parameters are.
         
@@ -78,7 +79,7 @@ class QueryManager:
         """)
 
     # This doubles as a classification model, to classify a query as a specific query type.
-    def get_query_details(self) -> dict:
+    def classify_query_type(self) -> dict:
         """
         Uses OpenAI's GPT-3.5 model to get details about the query and determine it's type
 
@@ -90,13 +91,14 @@ class QueryManager:
             prompt=self.prompt,
             max_tokens=1000
         )
-        return json.loads(response.to_dict()['choices'][0]['text'])  # questionable warning'
+        return json.loads(response.to_dict()['choices'][0]['text'])  # questionable warning on pycharm ide
     
     # The actual LLM stuff, make use of self.user_data, and self.query. 
     def get_response_to_query(self) -> dict:
         """
         """
-        hasUserData = (self.user_data != None)
+        hasUserData = (self.user_data != None) # This will determine if we can send any supporting data for the model to make it's response. 
+        query_type = self.query_type # This will determine what relevant data is retrieved.
         pass
 
 

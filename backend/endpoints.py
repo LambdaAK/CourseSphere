@@ -1,55 +1,20 @@
-import firebase_admin
-from firebase_admin import credentials, auth, db
-from firebase_admin import credentials, auth, db
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from query_manager import QueryManager
+from backend.firebase import Firebase
 
-firebase_credentials = credentials.Certificate("./credentials.json")
-database_url = "https://coursesphere-8bd9a-default-rtdb.firebaseio.com"
-firebase_admin.initialize_app(firebase_credentials, { "databaseURL": database_url })
-firebase_app = firebase_admin.get_app()
+
 app = Flask(__name__)
 CORS(app)
 
 # TODO: figure out the blueprint thing below
 #app.register_blueprint(courses_bp)
-
-def success_response(data: any, code: int):
-    """
-    Returns a success response with the given data and status code.
-
-    :param data: The data to include in the response.
-    :param code: The HTTP status code.
-    :return: A Flask JSON response with the given data and status code.
-    """
-    return jsonify(data), code
-
-
-def error_response(error: str, code: int):
-    """
-    Returns an error response with the given error message and status code.
-
-    :param error: The error message to include in the response.
-    :param code: The HTTP status code.
-    :return: A Flask JSON response with the error message and status code.
-    """
-    return jsonify({'error': error}), code
-
+success_response = lambda data, code: (jsonify(data), code)
+error_response = lambda error, code: (jsonify({'error': error}), code)
 
 @app.route("/users/create", methods=["POST"])
 def create_user():
-    """
-    Creates a new user with the provided email and password.
-
-    Expects a JSON payload in the request body with the following fields:
-    - email: The email address of the user.
-    - password: The password for the user's account.
-
-    :return: A JSON response indicating the result of the user creation process.
-             On success, returns a JSON response with the user data and a 200 status code.
-             On failure, returns a JSON response with an error message and a 400 status code.
-    """
     data = request.get_json()
     email = data.get("email")
     password = data.get("password")
@@ -58,109 +23,66 @@ def create_user():
     if not password:
         return error_response("Password is required", 400)
     try:
-        user = auth.create_user(
-            email=email, password=password
-        )  # FireBase Error OR ValueError
-        user_data = {
-            "message": "User created successfully",
-            "user_id": user.uid,
-            "email": user.email,
-        }
-        return success_response(user_data, 200)
+        return success_response(Firebase.create_user(email, password), 200)
     except Exception as e:
         return error_response(f"Error creating user: {str(e)}", 400)
 
-
 @app.route("/users/info", methods=["POST"])
-def set_user_info():
-    """
-    Sets user info with the provided info.
-
-    Expects a JSON payload in the request body with the following fields:
-    - majors: List of strings representing the user's majors.
-    - minors: List of strings representing the user's minors.
-    - year: Integer representing the user's academic year.
-    - college: String representing the user's college.
-    - courses: List of strings representing the user's courses.
-    - about: String with additional information about the user.
-    """
-    
-    # get the idtoken of the user
+def set_user_info(): 
     data = request.get_json()
     id_token = data.get("id_token")
-    uid = ""
     try:
-        decoded_token = auth.verify_id_token(id_token)
-        uid = decoded_token['uid']
+        uid = Firebase.verify_id_token(id_token).get('uid') # !!!
+        majors = data.get("majors")
+        minors = data.get("minors")
+        year = data.get("year")
+        college = data.get("college")
+        courses = data.get("courses")
+        about = data.get("about")
+        user_info = {
+            "majors": majors,
+            "minors": minors,
+            "courses": courses,
+            "college": college,
+            "year": year,
+            "about": about
+        }
+        Firebase.set_user_info(uid, user_info) # !!! 
+        return success_response({"message": "User info set successfully", "uid": uid}, 200)
     except Exception as e:
-        return error_response(f"Error setting user info: {str(e)}", 400)
+        return error_response(f"Error with setting user info: {str(e)}", 400)
         
-    majors = data.get("majors")
-    minors = data.get("minors")
-    year = data.get("year")
-    college = data.get("college")
-    courses = data.get("courses")
-    about = data.get("about")
-
-    # Set uid/info equal to the data
-    user_info = {
-        "majors": majors,
-        "minors": minors,
-        "courses": courses,
-        "college": college,
-        "year": year,
-        "about": about
-    }
-
-    ref = db.reference(f"users/{uid}/info")
-    ref.set(user_info)
-    return success_response({"message": "User info set successfully", "uid": uid}, 200)
-
-
 @app.route("/users/info", methods=["GET"])
-def get_user_info(id_token=None): 
-    """
-    Retrieves user information based on the provided ID token.
-
-    Expects a query parameter `id_token` in the request.
-    """
-    # get the idtoken of the user and authenticate it
-    if (id_token == None): 
-        id_token = request.args.get("id_token")
-    
-    uid = ""
+def get_user_info(id_token=None): # I use this function below in a different context, hence id_token optionally equal to None. 
     try:
-        decoded_token = auth.verify_id_token(id_token)
-        uid = decoded_token['uid']
+        id_token = id_token if id_token is not None else request.args.get("id_token")
+        uid = Firebase.verify_id_token(id_token).get('uid') # !!!
+        user_info = Firebase.get_user_info(uid)
+        return success_response(user_info, 200)
     except Exception as e:
         return error_response(f"Error getting user info: {str(e)}", 400)
-    ref = db.reference(f'users/{uid}/info')
-    user_info = ref.get()
-    return success_response(user_info, 200)
-
+  
 @app.route("/users/query", methods=["POST"])
 def get_user_query():
-    """
-    Handles different types of user queries based on the 'query_type' field in the request body.
-    """
-
-    # Receive the query from the frontend, along with another generic error handling
-    # Determine query type, and parse any other fields
-    # Compose query_manager functions (or abstract that away within said file and make it a one-shot func call
-    # Whatever else jerry / alex implemented
-    # Return the results to the frontend
-    data = request.get_json()
-    query = data.get("query")
-    id_token = data.get("id_token")
-
-    try:    
-        user_data = get_user_info(id_token)
-        qm = QueryManager(query, user_data)
-        data = qm.response
-        return success_response(data, 200)
+    query = request.get_json().get("query")
+    id_token = request.get_json().get("id_token")
+    user_info = Firebase.try_get_user_info(id_token)
+    try:
+        return success_response(QueryManager(query, user_info).response, 200)
     except Exception as e:
         return error_response(f"Error getting generating query: {str(e)}", 400)
 
+@app.route()
+def save_chat():
+    pass
 
+app.route()
+def update_chat():
+    pass
+
+@app.route()
+def delete_chat():
+    pass
+    
 if __name__ == '__main__':
     app.run(debug=True)

@@ -9,6 +9,7 @@ const app: FirebaseApp = initializeApp(firebaseConfig);
 const database: Database = getDatabase(app);
 const auth: Auth = getAuth();
 
+
 async function createUser (email: string, password: string) {
   const response = await fetch('http://127.0.0.1:5000/users/create', {
     method: 'POST',
@@ -215,41 +216,30 @@ async function fetchCourseSphereResponse(query: string) {
   return response;
 }
 
-async function saveCourseSphereChat() {
+function ensureUserLoggedIn(): boolean {
   const user = auth.currentUser;
-
   if (user == null) {
     alert("Not logged in");
-    return;
+    return false;
   }
-
-  try {
-    // Get the user's ID token if needed for authenticated operations
-    //const idToken = await user.getIdToken();
-
-    // Current plan: Use jQuery to grab all text boxes currently within the chat (DOM), or switch to redux idk
-    // Assuming chat messages are inside elements with class 'chat-message' 
-    //const chatMessages = [];
-    //$('.chat-message').each((index, element) => {
-      //chatMessages.push($(element).text().trim());
-    //});
-
-    // Define the chat data to save
-    //const chatData = {
-     // messages: chatMessages,
-      //timestamp: new Date(),
-    //};
-
-    // Save chat data to Firebase Firestore
-    //const db = firestore(); // Initialize Firestore
-    //await database.collection('userChats').doc(user.uid).set(chatData, { merge: true });
-
-    alert("Chat history saved successfully!");
-  } catch (error) {
-    console.error("Error saving chat history:", error);
-    alert("Failed to save chat history.");
-  }
+  return true;
 }
+
+async function saveCourseSphereChat() {
+  if (!ensureUserLoggedIn()) return;
+  
+}
+
+async function updateCourseSphereChat() {
+  if (!ensureUserLoggedIn()) return;
+  
+}
+
+async function deleteCourseSphereChat() {
+  if (!ensureUserLoggedIn()) return;
+ 
+}
+
 
 export {
   createUser,
@@ -259,4 +249,6 @@ export {
   setProfileInfoIfLoggedIn,
   fetchCourseSphereResponse,
   saveCourseSphereChat,
+  updateCourseSphereChat,
+  deleteCourseSphereChat
 };
