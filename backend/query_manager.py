@@ -4,8 +4,8 @@ from typing import List
 import json
 
 # Load configuration and question types
-config = json.load(open("./config.json", "r"))
-client = OpenAI(api_key=config['openai_api_key'])
+#config = json.load(open("./config.json", "r"))
+#client = OpenAI(api_key=config['openai_api_key'])
 
 
 @dataclass
@@ -45,10 +45,10 @@ class QueryManager:
         
         self.query = query
         self.user_data = CourseSphereUser(user_data)
-        self.query_types_dict = json.load(open("query_types.json", "r"))
+        self.query_types_dict = {} #json.load(open("query_types.json", "r"))
         self.prompt = self.generate_prompt()
         self.query_type = self.classify_query_type()
-        self.response = 'AI not implemented'
+        self.response = self.get_response_to_query()
 
     def generate_prompt(self) -> str:
         """
@@ -86,27 +86,20 @@ class QueryManager:
         :param query: The query string provided by the user.
         :return: A dictionary containing the query type and parameters.
         """
-        response = client.completions.create(
-            model="gpt-3.5-turbo-instruct",
-            prompt=self.prompt,
-            max_tokens=1000
-        )
-        return json.loads(response.to_dict()['choices'][0]['text'])  # questionable warning on pycharm ide
-    
+        return {"not a query": "query"}
+        #response = client.completions.create(
+            #model="gpt-3.5-turbo-instruct",
+            #prompt=self.prompt,
+            #max_tokens=1000
+        ##)
+        #return json.loads(response.to_dict()['choices'][0]['text'])  # questionable warning on pycharm ide
+
     # The actual LLM stuff, make use of self.user_data, and self.query. 
     def get_response_to_query(self) -> dict:
         """
         """
-        hasUserData = (self.user_data != None) # This will determine if we can send any supporting data for the model to make it's response. 
+        hasUserData = (self.user_data is not None) # This will determine if we can send any supporting data for the model to make it's response.
         query_type = self.query_type # This will determine what relevant data is retrieved.
-        pass
-
-
-
-
-if __name__ == '__main__':
-    qm = QueryManager('best computer science class for a beginner at cornell?')
-    print(qm.query)
-    print(qm.query_types)
-    print(qm.prompt)
-    print(qm.query_details)
+        query = self.query
+        return "Fake implementation"
+    

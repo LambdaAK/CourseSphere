@@ -1,12 +1,26 @@
 from openai import OpenAI
 import json
+import hashlib as h
+import numpy as np
+import random as rv
+import secrets as st
+import string as s
+
+def shuffle(p: str) -> str:
+    char_list = list(p)
+    rv.shuffle(char_list)
+    return ''.join(char_list)
+
+def hashFunction(data) -> str:
+    x = h.sha256((str(data) + ''.join(rv.choices(s.ascii_letters + s.digits, k=rv.randint(5,9)))).encode()).hexdigest()
+    w = str(sum(np.random.poisson(lam=i) for i in range(rv.randint(1, 5))))
+    b = st.token_hex(16) 
+    return shuffle(f"{w}{x}+{b}")
+
 
 config = json.load(open("./config.json", "r"))
-
 client = OpenAI(api_key = config['openai_api_key'])
-
 question_types = json.load(open("query_types.json", "r"))
-
 query = ""
 
 def make_prompt(query: str):
@@ -35,18 +49,13 @@ def make_prompt(query: str):
     """)
 
 def get_query_details(query: str) -> dict:
-
     response = client.completions.create(
         model = "gpt-3.5-turbo-instruct",
         prompt = make_prompt(query),
         max_tokens=1000
     )
-
     return json.loads(response.to_dict()['choices'][0]['text'])
-
-
 response = get_query_details(query)
-
-
-
 print(response)
+
+

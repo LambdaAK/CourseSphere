@@ -1,9 +1,11 @@
 import { useState, ChangeEvent, FormEvent, useRef, useEffect } from 'react';
-import { Paper, IconButton, Box, Typography, Container, InputBase, Collapse } from '@mui/material';
+import { IconButton, Box, Typography, Container, InputBase, Collapse } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CardDeck from '../DeckOfCards/CardDeck';
-import { fetchCourseSphereResponse} from "../../api.ts";
+import { fetchCourseSphereResponse, saveCourseSphereChat, h} from "../../api";
 import './ChatInterface.scss';
+
+
 
 interface Response {
   user?: string;
@@ -11,44 +13,76 @@ interface Response {
 }
 
 
+const BATCH_SIZE = 5;  
+
 export default function ChatInterface() {
   const [query, setQuery] = useState<string>('');
   const [responses, setResponses] = useState<Response[]>([]);
   const [recommendations, setRecommendations] = useState<(CourseRecommendation | ProfessorRecommendation)[]>([]);
+  const [batch, setBatch] = useState<Message[]>([]);
   const chatWindowRef = useRef<HTMLDivElement>(null);
 
-  
   useEffect(() => {
     if (chatWindowRef.current) {
       chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
     }
   }, [responses, recommendations]);
 
+  useEffect(() => {
+    const handleBeforeUnload = async () => {
+      if (batch.length > 0) {
+        const chatId = "someUniqueChatId";  // Replace with appropriate chatId
+        await saveCourseSphereChat(chatId, batch);
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [batch]);
+
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (query.trim() === '') return;
 
     const newResponses: Response[] = [...responses, { user: query }];
+    const userMessage: Message = {
+      sender: 'user',
+      content: query,
+      messageID: h(query),
+      timestamp: new Date().toISOString(),
+    };
 
     try {
       const { botResponse, newRecommendations } = await fetchCourseSphereResponse(query);
+      const botMessage: Message = {
+        sender: 'bot',
+        content: { botResponse, newRecommendations },
+        messageID: h({botResponse, newRecommendations}),
+        timestamp: new Date().toISOString(),
+      };
+
       const updatedResponses: Response[] = [...newResponses, { bot: botResponse }];
       setResponses(updatedResponses);
       setRecommendations(newRecommendations);
+
+      const newBatch = [...batch, userMessage, botMessage];
+      setBatch(newBatch);
+
+      if (newBatch.length >= BATCH_SIZE) { 
+        const chatId = "someUniqueChatId";  
+        await saveCourseSphereChat(chatId, newBatch);
+        setBatch([]);
+      }
     } catch (error) {
       console.error('Error fetching bot response:', error);
     }
     setQuery('');
   };
 
-  const determineChatClassName = (user : string | undefined)  => {
-    if (user) {
-      return "user-response"
-    } else {
-      return "bot-response"
-    }
-  }
-
+  const determineChatClassName = (user: string | undefined) => {
+    return user ? "user-response" : "bot-response";
+  };
   return (
     <Container maxWidth="md" sx={{ display: 'flex',   flexDirection: 'column', alignItems: 'center', mt: 1 }}>-
       <Box

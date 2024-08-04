@@ -1,15 +1,15 @@
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from query_manager import QueryManager
-from backend.firebase import Firebase
-
+from firebase import Firebase
+from main import hashFunction
 
 app = Flask(__name__)
 CORS(app)
 
 # TODO: figure out the blueprint thing below
 #app.register_blueprint(courses_bp)
+
 success_response = lambda data, code: (jsonify(data), code)
 error_response = lambda error, code: (jsonify({'error': error}), code)
 
@@ -32,7 +32,7 @@ def set_user_info():
     data = request.get_json()
     id_token = data.get("id_token")
     try:
-        uid = Firebase.verify_id_token(id_token).get('uid') # !!!
+        uid = Firebase.verify_id_token(id_token).get('uid')
         majors = data.get("majors")
         minors = data.get("minors")
         year = data.get("year")
@@ -47,7 +47,7 @@ def set_user_info():
             "year": year,
             "about": about
         }
-        Firebase.set_user_info(uid, user_info) # !!! 
+        Firebase.set_user_info(uid, user_info) 
         return success_response({"message": "User info set successfully", "uid": uid}, 200)
     except Exception as e:
         return error_response(f"Error with setting user info: {str(e)}", 400)
@@ -64,25 +64,45 @@ def get_user_info(id_token=None): # I use this function below in a different con
   
 @app.route("/users/query", methods=["POST"])
 def get_user_query():
-    query = request.get_json().get("query")
-    id_token = request.get_json().get("id_token")
-    user_info = Firebase.try_get_user_info(id_token)
     try:
+        query = request.get_json().get("query")
+        user_info = Firebase.try_get_user_info(request.get_json().get("id_token"))
         return success_response(QueryManager(query, user_info).response, 200)
     except Exception as e:
         return error_response(f"Error getting generating query: {str(e)}", 400)
 
-@app.route()
-def save_chat():
-    pass
+@app.route('/hash', methods=['POST'])
+def generate_message_id():
+    try:
+        id_token = request.headers.get('Authorization').split('Bearer ')[1]
+        Firebase.verify_id_token(id_token).get('uid')
+        data = request.get_json()  
+        message_id = hashFunction(data)
+        return jsonify({'messageID': message_id}), 200  
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
-app.route()
-def update_chat():
-    pass
+@app.route("/chats/<chat_id>/messages", methods=["POST"])
+def save_chat(chat_id):
+    try:
+        id_token = request.headers.get('Authorization').split('Bearer ')[1]
+        user_id = Firebase.verify_id_token(id_token).get('uid')
+        messages = request.get_json().get('messages', [])
+        Firebase.save_chat(user_id, chat_id, messages)
+        return jsonify({'message': 'Messages saved successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': f"Error saving messages: {str(e)}"}), 400
 
-@app.route()
-def delete_chat():
-    pass
-    
+@app.route("/chats/<chat_id>", methods=["DELETE"])
+def delete_chat(chat_id):
+    try:
+        id_token = request.headers.get("Authorization").split("Bearer ")[1]
+        user_id = Firebase.verify_id_token(id_token).get('uid')
+        Firebase.delete_chat(user_id, chat_id)
+        return success_response({'message': 'Message deleted successfully'}, 200)
+    except Exception as e:
+        return error_response(f"Error deleting message: {str(e)}", 400)
+
+
 if __name__ == '__main__':
     app.run(debug=True)

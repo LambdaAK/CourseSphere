@@ -62,3 +62,13 @@ interface Chat {
 }
 
 type Recommendation = CourseRecommendation | ProfessorRecommendation;
+
+
+type Content = string | { botResponse: string; newRecommendations: (CourseRecommendation | ProfessorRecommendation)[] };
+
+interface Message {
+  sender: string;
+  content: Content;
+  messageID: Promise<string | undefined>;
+  timestamp: string;
+}

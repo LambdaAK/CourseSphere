@@ -84,10 +84,8 @@ async function setProfileInfoIfLoggedIn(
   setAbout: Function
 ){
   onAuthStateChanged(auth, async (user) => {
-
-    if (user == null) return
-
-    const idToken = await user.getIdToken()
+    if (!ensureUserLoggedIn()) return;
+    const idToken = await user?.getIdToken()
 
     try {
       const response = await fetch(`http://127.0.0.1:5000/users/info?id_token=${idToken}`, {
@@ -162,7 +160,7 @@ async function saveProfileChanges (majors: string[], minors: string[], courses: 
   fetch("http://127.0.0.1:5000/users/info", {
     method: "POST",
     headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
     },
     body: JSON.stringify(data)
   })
@@ -183,13 +181,13 @@ async function saveProfileChanges (majors: string[], minors: string[], courses: 
  */
 async function fetchCourseSphereResponse(query: string) {
   const user = auth.currentUser;
-  const idToken = await user?.getIdToken();
+  const idToken = user?.getIdToken();
   const data = { query, idToken };
-
   const response = await fetch("http://127.0.0.1:5000/users/query", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      'Authorization': `Bearer ${idToken}`
     },
     body: JSON.stringify(data)
   })
@@ -221,19 +219,103 @@ function ensureUserLoggedIn(): boolean {
   return true;
 }
 
-async function saveCourseSphereChat() {
-  if (!ensureUserLoggedIn()) return;
+
+async function saveCourseSphereChat(chatId: string, messages: Message[]) {
+  if (!await ensureUserLoggedIn()) return;
   
+  const user = auth.currentUser;
+  const idToken = await user?.getIdToken();
+
+  const response = await fetch(`/chats/${chatId}/messages`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`
+    },
+    body: JSON.stringify({
+      id_token: idToken,
+      messages: messages.map(message => ({
+        sender: message.sender,
+        content: message.content,
+        messageID: message.messageID,  // Ensure messageID is resolved
+        timestamp: message.timestamp
+      }))
+    })
+  });
+  
+  const data = await response.json();
+  if (!response.ok) {
+    alert(data.error || 'Error saving messages');
+  }
 }
 
-async function updateCourseSphereChat() {
-  if (!ensureUserLoggedIn()) return;
+
+
+
+
+async function updateCourseSphereChat(chatId: string, messageId: string, updatedContent: string) {
+  if (!await ensureUserLoggedIn()) return;
+  const user = auth.currentUser;
+  const idToken = await user?.getIdToken();
+
+  const response = await fetch(`/chats/${chatId}/messages/${messageId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      id_token: idToken,
+      content: updatedContent
+    })
+  });
   
+  const data = await response.json();
+  if (!response.ok) {
+    alert(data.error);
+  }
 }
 
-async function deleteCourseSphereChat() {
-  if (!ensureUserLoggedIn()) return;
- 
+async function deleteCourseSphereChat(chatId: string, messageId: string) {
+  if (!await ensureUserLoggedIn()) return;
+  const user = auth.currentUser;
+  const idToken = await user?.getIdToken();
+
+  const response = await fetch(`/chats/${chatId}/messages/${messageId}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`
+    }
+  });
+  
+  const data = await response.json();
+  if (!response.ok) {
+    alert(data.error);
+  }
+}
+
+// h Function
+async function h(data: any): Promise<string | undefined> {
+  if (!await ensureUserLoggedIn()) return;
+
+  const user = auth.currentUser;
+  const idToken = await user?.getIdToken();
+
+  const response = await fetch("http://127.0.0.1:5000/hash", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`  
+    },
+    body: JSON.stringify(data)  
+  });
+
+  if (!response.ok) {
+    throw new Error(`Error generating message ID: ${response.statusText}`);
+  }
+
+  const result = await response.json();
+  return result.messageID;
 }
 
 
@@ -246,5 +328,6 @@ export {
   fetchCourseSphereResponse,
   saveCourseSphereChat,
   updateCourseSphereChat,
-  deleteCourseSphereChat
+  deleteCourseSphereChat,
+  h
 };

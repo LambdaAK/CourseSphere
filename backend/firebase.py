@@ -133,14 +133,26 @@ class Firebase:
         
 
     @staticmethod
-    def save_chat(uid: str):
-        pass
+    def save_chat(uid: str, chat_id: str, messages: list):
+        try:
+            ref = db.reference(f"users/{uid}/chats/{chat_id}/messages")
+            
+            # Ensure messages is a list of dictionaries
+            if isinstance(messages, list):
+                for message in messages:
+                    if isinstance(message, dict):
+                        ref.push(message)  # Add each message to the Firebase database
+                    else:
+                        raise ValueError("Each message must be a dictionary.")
+            else:
+                raise ValueError("Messages must be a list of dictionaries.")
+        except Exception as e:
+            raise Exception(f"Error saving messages: {str(e)}")
 
-    @staticmethod 
-    def update_chat(uid: str):
-        pass
-    
     @staticmethod
-    def delete_chat(uid: str):
-        pass
-
+    def delete_chat(uid: str, chat_id: str):
+        try:
+            ref = db.reference(f"users/{uid}/chats/{chat_id}")
+            ref.delete()  # Deletes the entire chat session
+        except Exception as e:
+            raise Exception(f"Error deleting chat session: {str(e)}")
