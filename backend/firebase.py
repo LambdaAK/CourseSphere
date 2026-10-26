@@ -1,10 +1,36 @@
 # firebase.py
+import os
 import firebase_admin
 from firebase_admin import credentials, auth, db
-firebase_credentials = credentials.Certificate("./credentials.json")
-database_url = "https://coursesphere-8bd9a-default-rtdb.firebaseio.com"
-firebase_admin.initialize_app(firebase_credentials, {"databaseURL": database_url})
-firebase_app = firebase_admin.get_app()
+
+
+def _init_firebase_app():
+    """
+    Inicializa o Firebase Admin SDK.
+
+    - Padrão (produção): usa credentials.json e o banco original, como antes.
+    - Com FIREBASE_AUTH_EMULATOR_HOST definido: usa os emuladores locais,
+      sem credencial real.
+    """
+    if os.environ.get("FIREBASE_AUTH_EMULATOR_HOST"):
+        project_id = os.environ.get("GCLOUD_PROJECT", "demo-coursesphere")
+        options = {
+            "projectId": project_id,
+            "databaseURL": f"https://{project_id}-default-rtdb.firebaseio.com",
+        }
+        return firebase_admin.initialize_app(options=options)
+
+    cred_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "./credentials.json")
+    options = {
+        "databaseURL": os.environ.get(
+            "FIREBASE_DATABASE_URL",
+            "https://coursesphere-8bd9a-default-rtdb.firebaseio.com",
+        )
+    }
+    return firebase_admin.initialize_app(credentials.Certificate(cred_path), options)
+
+
+firebase_app = _init_firebase_app()
 
 class Firebase:
     @staticmethod

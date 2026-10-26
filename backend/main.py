@@ -1,5 +1,6 @@
 from openai import OpenAI
 import json
+import os
 import hashlib as h
 import numpy as np
 import random as rv
@@ -18,17 +19,34 @@ def hashFunction(data) -> str:
     return shuffle(f"{w}{x}+{b}")
 
 
-config = json.load(open("./config.json", "r"))
-client = OpenAI(api_key = config['openai_api_key'])
-question_types = json.load(open("query_types.json", "r"))
-query = ""
+_client = None
+_question_types = None
+
+
+def _get_client():
+    """Cria o cliente OpenAI só quando for usado, lendo a chave do ambiente."""
+    global _client
+    if _client is None:
+        api_key = os.environ.get("OPENAI_API_KEY")
+        if not api_key:
+            api_key = json.load(open("./config.json", "r"))["openai_api_key"]
+        _client = OpenAI(api_key=api_key)
+    return _client
+
+
+def _get_question_types():
+    global _question_types
+    if _question_types is None:
+        _question_types = json.load(open("query_types.json", "r"))
+    return _question_types
+
 
 def make_prompt(query: str):
     return ("""
     Respond to this prompt with a JSON object ONLY! No other output.
                     
     Consider the following query types with parameters:"""
-    + str(question_types)
+    + str(_get_question_types())
     + """
     The keys in the parameter list represent the paremeters, and the values of those keys
     represent the data types that those parameters are.
@@ -48,14 +66,11 @@ def make_prompt(query: str):
         If the query is empty or doesn't make sense, say that it is an unsupported query_type
     """)
 
+
 def get_query_details(query: str) -> dict:
-    response = client.completions.create(
+    response = _get_client().completions.create(
         model = "gpt-3.5-turbo-instruct",
         prompt = make_prompt(query),
         max_tokens=1000
     )
     return json.loads(response.to_dict()['choices'][0]['text'])
-response = get_query_details(query)
-print(response)
-
-
