@@ -52,8 +52,12 @@ class Firebase:
             "email": user.email,
             } 
             return user_data
+        except auth.EmailAlreadyExistsError as e:
+            raise PublicError("Email already in use", 400) from e
+        except ValueError as e:
+            raise PublicError("Invalid email or password", 400) from e
         except Exception as e:
-            raise Exception(f"Error creating user: {str(e)}")
+            raise Exception("Error creating user") from e
         
     @staticmethod
     def delete_user(uid: str):
