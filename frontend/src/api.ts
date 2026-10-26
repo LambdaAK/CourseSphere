@@ -88,10 +88,11 @@ async function setProfileInfoIfLoggedIn(
     const idToken = await user?.getIdToken()
 
     try {
-      const response = await fetch(`http://127.0.0.1:5000/users/info?id_token=${idToken}`, {
+      const response = await fetch("http://127.0.0.1:5000/users/info", {
         method: "GET",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${idToken}`
         }
       })
 

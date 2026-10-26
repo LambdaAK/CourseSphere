@@ -32,6 +32,15 @@ def _init_firebase_app():
 
 firebase_app = _init_firebase_app()
 
+
+class PublicError(Exception):
+    """Erro cujo texto é seguro para devolver ao cliente (sem detalhes internos)."""
+
+    def __init__(self, message: str, status: int = 400):
+        super().__init__(message)
+        self.message = message
+        self.status = status
+
 class Firebase:
     @staticmethod
     def create_user(email: str, password: str):
@@ -60,8 +69,15 @@ class Firebase:
         try:
             decoded_token = auth.verify_id_token(id_token)
             return decoded_token
+        except (
+            auth.InvalidIdTokenError,
+            auth.ExpiredIdTokenError,
+            auth.RevokedIdTokenError,
+            ValueError,
+        ) as e:
+            raise PublicError("Invalid or expired token", 401) from e
         except Exception as e:
-            raise Exception(f"Error verifying ID token: {str(e)}")
+            raise Exception("Error verifying ID token") from e
 
     @staticmethod
     def set_user_info(uid: str, user_info: dict):

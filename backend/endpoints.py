@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from query_manager import QueryManager
-from firebase import Firebase
+from firebase import Firebase, PublicError
 from main import hashFunction
 
 app = Flask(__name__)
@@ -12,6 +12,18 @@ CORS(app)
 
 success_response = lambda data, code: (jsonify(data), code)
 error_response = lambda error, code: (jsonify({'error': error}), code)
+
+
+def bearer_token() -> str:
+    """Extrai o token do header 'Authorization: Bearer <token>'.
+
+    O token nunca deve trafegar na URL: query strings são gravadas em logs de
+    acesso, proxies e histórico do navegador.
+    """
+    scheme, _, token = request.headers.get("Authorization", "").partition(" ")
+    if scheme != "Bearer" or not token.strip():
+        raise PublicError("Authentication required", 401)
+    return token.strip()
 
 @app.route("/users/create", methods=["POST"])
 def create_user():
@@ -55,10 +67,12 @@ def set_user_info():
 @app.route("/users/info", methods=["GET"])
 def get_user_info(id_token=None): # I use this function below in a different context, hence id_token optionally equal to None. 
     try:
-        id_token = id_token if id_token is not None else request.args.get("id_token")
+        id_token = id_token if id_token is not None else bearer_token()
         uid = Firebase.verify_id_token(id_token).get('uid') # !!!
         user_info = Firebase.get_user_info(uid)
         return success_response(user_info, 200)
+    except PublicError as e:
+        return error_response(e.message, e.status)
     except Exception as e:
         return error_response(f"Error getting user info: {str(e)}", 400)
   
