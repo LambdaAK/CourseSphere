@@ -6,3 +6,19 @@
 *.db*
 
 .DS_Store
+# Segredos e credenciais
+credentials.json
+*credentials*.json
+.env
+.env.*
+**/reddit_key.json
+
+# Ambientes e caches
+.venv/
+venv/
+__pycache__/
+*.pyc
+node_modules/
+
+# Logs locais dos emuladores
+*-debug.log
