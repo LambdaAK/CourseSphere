@@ -1,4 +1,5 @@
 import logging
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from query_manager import QueryManager
@@ -8,8 +9,22 @@ from main import hashFunction
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("coursesphere")
 
+def is_debug_enabled() -> bool:
+    """O depurador do Werkzeug só liga se FLASK_DEBUG=1 for definido de forma explícita."""
+    return os.environ.get("FLASK_DEBUG", "0") == "1"
+
+
+# Origens do frontend autorizadas a chamar a API pelo navegador (lista separada por vírgula).
+ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get(
+        "CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173"
+    ).split(",")
+    if origin.strip()
+]
+
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=ALLOWED_ORIGINS)
 
 # TODO: figure out the blueprint thing below
 #app.register_blueprint(courses_bp)
@@ -129,4 +144,4 @@ def delete_chat(chat_id):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host=os.environ.get("HOST", "127.0.0.1"), debug=is_debug_enabled())
