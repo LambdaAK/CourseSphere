@@ -21,4 +21,7 @@ import endpoints  # noqa: E402
 @pytest.fixture()
 def client():
     endpoints.app.config["TESTING"] = True
+    limiter = getattr(endpoints, "limiter", None)
+    if limiter is not None:
+        limiter.reset()  # cada teste começa com os contadores zerados
     return endpoints.app.test_client()

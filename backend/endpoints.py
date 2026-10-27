@@ -2,6 +2,8 @@ import logging
 import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from query_manager import QueryManager
 from firebase import Firebase, PublicError
 from main import hashFunction
@@ -25,6 +27,15 @@ ALLOWED_ORIGINS = [
 
 app = Flask(__name__)
 CORS(app, origins=ALLOWED_ORIGINS)
+
+# Rate limiting por IP. O contador fica na memória de cada processo; com várias
+# instâncias, aponte RATELIMIT_STORAGE_URI para um Redis compartilhado.
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per minute"],
+    storage_uri=os.environ.get("RATELIMIT_STORAGE_URI", "memory://"),
+)
 
 # TODO: figure out the blueprint thing below
 #app.register_blueprint(courses_bp)
@@ -53,6 +64,7 @@ def bearer_token() -> str:
     return token.strip()
 
 @app.route("/users/create", methods=["POST"])
+@limiter.limit("5 per minute")
 def create_user():
     data = request.get_json()
     email = data.get("email")
@@ -102,6 +114,7 @@ def get_user_info(id_token=None): # I use this function below in a different con
         return handle_error("get_user_info", e)
   
 @app.route("/users/query", methods=["POST"])
+@limiter.limit("20 per minute")
 def get_user_query():
     try:
         query = request.get_json().get("query")
@@ -111,6 +124,7 @@ def get_user_query():
         return handle_error("get_user_query", e)
 
 @app.route('/hash', methods=['POST'])
+@limiter.limit("60 per minute")
 def generate_message_id():
     try:
         id_token = bearer_token()
@@ -141,6 +155,25 @@ def delete_chat(chat_id):
         return success_response({'message': 'Message deleted successfully'}, 200)
     except Exception as e:
         return handle_error("delete_chat", e)
+
+
+@app.errorhandler(429)
+def too_many_requests(e):
+    return error_response("Too many requests", 429)
+
+
+@app.after_request
+def add_security_headers(response):
+    """Headers de segurança em todas as respostas da API."""
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "no-referrer"
+    response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
+    response.headers["Cache-Control"] = "no-store"
+    # HSTS só faz sentido sobre HTTPS (atrás de proxy, o Nginx informa o esquema).
+    if request.is_secure or request.headers.get("X-Forwarded-Proto", "").lower() == "https":
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    return response
 
 
 if __name__ == '__main__':

@@ -1,5 +1,6 @@
 firebase-admin
 flask
 flask-cors
+flask-limiter
 openai
 pandas
