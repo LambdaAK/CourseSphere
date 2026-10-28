@@ -4,12 +4,27 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from werkzeug.middleware.proxy_fix import ProxyFix
 from query_manager import QueryManager
 from firebase import Firebase, PublicError
 from main import hashFunction
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("coursesphere")
+
+def apply_proxy_fix(flask_app, enabled=None):
+    """Confia nos headers X-Forwarded-* SOMENTE quando há um proxy reverso na frente.
+
+    Atrás do Nginx, sem isso todos os clientes pareceriam ter o IP do proxy e
+    dividiriam o mesmo contador de rate limit. Ligar TRUST_PROXY=1 sem proxy é
+    perigoso: o cliente poderia forjar o próprio IP e escapar do limite.
+    """
+    if enabled is None:
+        enabled = os.environ.get("TRUST_PROXY", "0") == "1"
+    if enabled:
+        flask_app.wsgi_app = ProxyFix(flask_app.wsgi_app, x_for=1, x_proto=1, x_host=0)
+    return flask_app
+
 
 def is_debug_enabled() -> bool:
     """O depurador do Werkzeug só liga se FLASK_DEBUG=1 for definido de forma explícita."""
@@ -27,6 +42,7 @@ ALLOWED_ORIGINS = [
 
 app = Flask(__name__)
 CORS(app, origins=ALLOWED_ORIGINS)
+apply_proxy_fix(app)
 
 # Rate limiting por IP. O contador fica na memória de cada processo; com várias
 # instâncias, aponte RATELIMIT_STORAGE_URI para um Redis compartilhado.
@@ -155,6 +171,13 @@ def delete_chat(chat_id):
         return success_response({'message': 'Message deleted successfully'}, 200)
     except Exception as e:
         return handle_error("delete_chat", e)
+
+
+@app.route("/health", methods=["GET"])
+@limiter.exempt
+def health():
+    """Liveness: o processo está de pé e respondendo (não consome rate limit)."""
+    return jsonify({"status": "ok"}), 200
 
 
 @app.errorhandler(429)

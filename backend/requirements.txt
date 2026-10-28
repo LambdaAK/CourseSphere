@@ -2,5 +2,7 @@ firebase-admin
 flask
 flask-cors
 flask-limiter
+gunicorn
+numpy
 openai
 pandas
