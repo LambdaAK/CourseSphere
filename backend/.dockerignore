@@ -1,0 +1,9 @@
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+tests
+cornell-course-sphere-data
+config.json
+credentials.json
+**/reddit_key.json

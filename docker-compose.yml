@@ -1,0 +1,46 @@
+# Ambiente: Nginx (porta 8080) -> 2 instâncias do backend.
+# Subir:   docker compose up --build -d
+# Verificar: docker compose ps
+x-backend: &backend
+  build:
+    context: ./backend
+  environment:
+    # Modo emulador do Firebase (sem credenciais reais). O serviço "emulator"
+    # será adicionado numa etapa seguinte; até lá, rotas que usam Firebase
+    # respondem 500 genérico, mas /health e o balanceamento já funcionam.
+    FIREBASE_AUTH_EMULATOR_HOST: "emulator:9099"
+    FIREBASE_DATABASE_EMULATOR_HOST: "emulator:9000"
+    GCLOUD_PROJECT: demo-coursesphere
+    TRUST_PROXY: "1"   # só é seguro porque as portas dos backends NÃO são publicadas
+    CORS_ORIGINS: "http://localhost:5173,http://127.0.0.1:5173"
+  restart: unless-stopped
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+  mem_limit: 512m
+  cpus: 1.0
+
+services:
+  backend1:
+    <<: *backend
+
+  backend2:
+    <<: *backend
+
+  nginx:
+    image: nginxinc/nginx-unprivileged:1.27-alpine
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      backend1:
+        condition: service_healthy
+      backend2:
+        condition: service_healthy
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
