@@ -3,6 +3,7 @@ flask
 flask-cors
 flask-limiter
 gunicorn
+prometheus-client
 numpy
 openai
 pandas

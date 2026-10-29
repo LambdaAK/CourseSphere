@@ -7,9 +7,10 @@ from flask_limiter.util import get_remote_address
 from werkzeug.middleware.proxy_fix import ProxyFix
 from query_manager import QueryManager
 from firebase import Firebase, PublicError
+from observability import configure_logging, init_observability
 from main import hashFunction
 
-logging.basicConfig(level=logging.INFO)
+configure_logging()
 logger = logging.getLogger("coursesphere")
 
 def apply_proxy_fix(flask_app, enabled=None):
@@ -53,6 +54,8 @@ limiter = Limiter(
     storage_uri=os.environ.get("RATELIMIT_STORAGE_URI", "memory://"),
 )
 
+init_observability(app, limiter)
+
 # TODO: figure out the blueprint thing below
 #app.register_blueprint(courses_bp)
 
@@ -63,6 +66,8 @@ error_response = lambda error, code: (jsonify({'error': error}), code)
 def handle_error(context: str, exc: Exception):
     """Resposta de erro segura: detalhes internos vão para o log, não para o cliente."""
     if isinstance(exc, PublicError):
+        if exc.status == 401:
+            logger.warning("authentication failed", extra={"event": "auth_failed", "context": context})
         return error_response(exc.message, exc.status)
     logger.error("%s failed", context, exc_info=exc)
     return error_response("Internal server error", 500)
@@ -90,7 +95,9 @@ def create_user():
     if not password:
         return error_response("Password is required", 400)
     try:
-        return success_response(Firebase.create_user(email, password), 200)
+        created = Firebase.create_user(email, password)
+        logger.info("user created", extra={"event": "user_created"})
+        return success_response(created, 200)
     except Exception as e:
         return handle_error("create_user", e)
 
@@ -182,6 +189,7 @@ def health():
 
 @app.errorhandler(429)
 def too_many_requests(e):
+    logger.warning("rate limit exceeded", extra={"event": "rate_limited"})
     return error_response("Too many requests", 429)
 
 
