@@ -5,13 +5,15 @@ import { Database, getDatabase, set } from "firebase/database";
 import { Auth, getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 import { toast } from "react-toastify";
 
+const API_URL: string = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:5000";
+
 const app: FirebaseApp = initializeApp(firebaseConfig);
 const database: Database = getDatabase(app);
 const auth: Auth = getAuth();
 
 
 async function createUser (email: string, password: string) {
-  const response = await fetch('http://127.0.0.1:5000/users/create', {
+  const response = await fetch(`${API_URL}/users/create`, {
     method: 'POST',
     mode: "cors",
     headers: {
@@ -88,7 +90,7 @@ async function setProfileInfoIfLoggedIn(
     const idToken = await user?.getIdToken()
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/users/info", {
+      const response = await fetch(`${API_URL}/users/info`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -158,7 +160,7 @@ async function saveProfileChanges (majors: string[], minors: string[], courses: 
     id_token: idToken
   };
 
-  fetch("http://127.0.0.1:5000/users/info", {
+  fetch(`${API_URL}/users/info`, {
     method: "POST",
     headers: {
         "Content-Type": "application/json",
@@ -184,7 +186,7 @@ async function fetchCourseSphereResponse(query: string) {
   const user = auth.currentUser;
   const idToken = user?.getIdToken();
   const data = { query, idToken };
-  const response = await fetch("http://127.0.0.1:5000/users/query", {
+  const response = await fetch(`${API_URL}/users/query`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -302,7 +304,7 @@ async function h(data: any): Promise<string | undefined> {
   const user = auth.currentUser;
   const idToken = await user?.getIdToken();
 
-  const response = await fetch("http://127.0.0.1:5000/hash", {
+  const response = await fetch(`${API_URL}/hash`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

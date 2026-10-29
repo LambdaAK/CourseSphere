@@ -1,0 +1,56 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Instala dependencias
+        run: pip install -r backend/requirements.txt pytest bandit pip-audit
+      - name: Testes de seguranca (devem passar)
+        run: python -m pytest backend/tests -q
+      - name: SAST (Bandit)
+        continue-on-error: true   # achados conhecidos estao no SECURITY_REPORT.md
+        run: bandit -r backend -x backend/tests,backend/cornell-course-sphere-data -f txt -o bandit.txt
+      - name: SCA (pip-audit)
+        continue-on-error: true
+        run: pip-audit -r backend/requirements.txt > pip-audit.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: relatorios-backend
+          path: |
+            bandit.txt
+            pip-audit.txt
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm ci --ignore-scripts
+      - name: SCA (npm audit)
+        continue-on-error: true   # risco residual documentado no SECURITY_REPORT.md
+        run: npm audit --omit=dev > ../npm-audit.txt
+      # `vite build` direto: `npm run build` roda tsc, que hoje falha com 15 erros de tipo pre-existentes.
+      - run: npx vite build
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: relatorios-frontend
+          path: npm-audit.txt

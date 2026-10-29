@@ -9,6 +9,7 @@ import firebaseConfig from "../../firebaseConfig";
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const auth = getAuth(app);
+const API_URL: string = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:5000";
 
 export default function UserChats() {
   const [chats, setChats] = useState<Chat[]>([]);
@@ -22,7 +23,7 @@ export default function UserChats() {
           setIsLoggedIn(true);
           try {
             const idToken = await user.getIdToken();
-            const response = await fetch("http://127.0.0.1:5000/theactualbackendlink", {
+            const response = await fetch(`${API_URL}/theactualbackendlink`, {
               method: "GET",
               headers: {
                 "Content-Type": "application/json",

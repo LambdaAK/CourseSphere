@@ -28,6 +28,19 @@ services:
   backend2:
     <<: *backend
 
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: "http://localhost:8080"
+    ports:
+      - "5173:8080"   # mesma porta do Vite: já está em CORS_ORIGINS
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
   nginx:
     image: nginxinc/nginx-unprivileged:1.27-alpine
     ports:
